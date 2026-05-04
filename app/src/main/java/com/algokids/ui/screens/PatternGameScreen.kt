@@ -75,10 +75,7 @@ fun PatternGameScreen(
         instruction = "Bak ve devamını bul!",
         progress = (index + 1).toFloat() / items.size,
         onBack = { if (index > 0) index-- else showExitDialog = true },
-        onExit = { showExitDialog = true },
-        onSound = {
-            tts.speak("Bak ve devamını bul!", TextToSpeech.QUEUE_FLUSH, null, null)
-        }
+        onExit = { showExitDialog = true }
     ) {
         // Kart İçeriği
         Text(

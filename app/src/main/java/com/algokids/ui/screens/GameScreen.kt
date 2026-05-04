@@ -1,6 +1,7 @@
 package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
@@ -39,9 +41,39 @@ import com.algokids.ui.components.GameScene
 import kotlinx.coroutines.delay
 import java.util.Locale
 
+enum class AppLanguage(val locale: Locale) {
+    TR(Locale("tr", "TR")),
+    EN(Locale.US)
+}
+
+data class QuestionProgress(
+    val isCorrect: Boolean = false,
+    val matchedPairs: Set<String> = emptySet()
+)
+
+class GameSessionState {
+    var index by mutableIntStateOf(0)
+    var correctCount by mutableIntStateOf(0)
+    var mistakeCount by mutableIntStateOf(0)
+    var wrongStreak by mutableIntStateOf(0)
+    val questions: SnapshotStateMap<String, QuestionProgress> = mutableStateMapOf()
+
+    fun restart() {
+        index = 0
+        correctCount = 0
+        mistakeCount = 0
+        wrongStreak = 0
+        questions.clear()
+    }
+}
+
 @Composable
 fun GameScreen(
     items: List<GameContent>,
+    session: GameSessionState,
+    language: AppLanguage,
+    isSoundEnabled: Boolean,
+    onToggleSound: () -> Unit,
     onBack: () -> Unit
 ) {
     if (items.isEmpty()) {
@@ -55,23 +87,51 @@ fun GameScreen(
     
     val context = LocalContext.current
     val tts = remember { TextToSpeech(context, null) }
-    var index by remember { mutableIntStateOf(0) }
-    val currentContent = sortedItems.getOrNull(index) ?: sortedItems[0]
-    var isCorrect by remember(index) { mutableStateOf(false) }
+    DisposableEffect(Unit) {
+        onDispose {
+            tts.stop()
+            tts.shutdown()
+        }
+    }
+    session.index = session.index.coerceIn(0, sortedItems.lastIndex)
+    val currentContent = sortedItems.getOrNull(session.index) ?: sortedItems[0]
+    val contentKey = currentContent.id ?: "item_${session.index}"
+    val questionProgress = session.questions[contentKey] ?: QuestionProgress()
+    val isCorrect = questionProgress.isCorrect
 
-    var selectedLeft by remember(index) { mutableStateOf<String?>(null) }
-    var matchedPairs by remember(index) { mutableStateOf(setOf<String>()) }
+    var selectedLeft by remember(contentKey) { mutableStateOf<String?>(null) }
+    val matchedPairs = questionProgress.matchedPairs
     
     var showBackDialog by remember { mutableStateOf(false) }
     
-    var isHidden by remember(index) { mutableStateOf(false) }
-    var isSoundEnabled by remember { mutableStateOf(true) }
+    var isHidden by remember(contentKey) { mutableStateOf(false) }
+
+    fun updateQuestion(progress: QuestionProgress) {
+        session.questions[contentKey] = progress
+    }
+
+    fun markCorrect(feedback: String) {
+        if (!isCorrect) session.correctCount++
+        session.wrongStreak = 0
+        val latestProgress = session.questions[contentKey] ?: questionProgress
+        updateQuestion(latestProgress.copy(isCorrect = true))
+        speak(tts, feedback, language, isSoundEnabled)
+    }
+
+    fun markMistake(feedback: String) {
+        session.mistakeCount++
+        session.wrongStreak++
+        if (session.wrongStreak >= 3) {
+            speak(tts, label(language, "Başa dönüyoruz.", "Back to start."), language, isSoundEnabled)
+            session.restart()
+        } else {
+            speak(tts, feedback, language, isSoundEnabled)
+        }
+    }
     
     LaunchedEffect(currentContent) {
-        tts.language = Locale("tr")
-        if (isSoundEnabled) {
-            tts.speak(currentContent.instruction ?: "", TextToSpeech.QUEUE_FLUSH, null, null)
-        }
+        configureVoice(tts, language)
+        speak(tts, localizedInstruction(currentContent, language), language, isSoundEnabled)
         
         if (currentContent.category == GameCategory.MEMORY) {
             isHidden = false
@@ -83,19 +143,19 @@ fun GameScreen(
     if (showBackDialog) {
         AlertDialog(
             onDismissRequest = { showBackDialog = false },
-            title = { Text("Oyundan Çıkıyor Musun?") },
-            text = { Text("Eğer çıkarsan ilerlemen kaybolabilir. Devam etmek istiyor musun?") },
+            title = { Text(if (language == AppLanguage.TR) "Çıkılsın mı?" else "Leave?") },
+            text = { Text(if (language == AppLanguage.TR) "Menüye dönmek ister misin?" else "Go back to menu?") },
             confirmButton = {
                 Button(
                     onClick = onBack,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5252))
                 ) {
-                    Text("Evet, Çık")
+                    Text(if (language == AppLanguage.TR) "Çık" else "Leave")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showBackDialog = false }) {
-                    Text("Hayır, Devam Et")
+                    Text(if (language == AppLanguage.TR) "Kal" else "Stay")
                 }
             },
             shape = RoundedCornerShape(24.dp)
@@ -104,30 +164,31 @@ fun GameScreen(
 
     GameScene(
         title = when(currentContent.category) {
-            GameCategory.MEMORY -> "Hafıza Gücü"
-            GameCategory.AUDIOLOGY -> "Kulak Misafiri"
-            GameCategory.GEOMETRY -> "Şekil Avcısı"
+            GameCategory.MEMORY -> label(language, "Hafıza Gücü", "Memory")
+            GameCategory.AUDIOLOGY -> label(language, "Kulak Misafiri", "Listening")
+            GameCategory.GEOMETRY -> label(language, "Şekil Avcısı", "Geometry")
+            GameCategory.ALGORITHM -> label(language, "Algoritma", "Algorithm")
             else -> when(currentContent.type) {
-                GameType.PATTERN -> "Örüntü Zamanı"
-                GameType.COUNTING -> "Sayıları Sayalım"
-                GameType.SHADOW_MATCH -> "Gölgeyi Bul"
-                GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> "Farklı Olanı Bul"
-                GameType.MATCHING -> "Eşini Bul"
-                GameType.SIZE_COMPARISON -> "Büyük - Küçük"
-                GameType.FUNCTIONAL_MATCH -> "Neyle Kullanılır?"
-                GameType.SAME_OBJECT -> "Aynısını Bul"
-                GameType.FIND_THE_PAIR -> "Çiftini Bul"
-                GameType.SEQUENCE_LOGIC, GameType.WHAT_IS_NEXT -> "Mantık Sırası"
-                else -> "Eğlence Vakti"
+                GameType.PATTERN -> label(language, "Örüntü Zamanı", "Patterns")
+                GameType.COUNTING -> label(language, "Sayıları Sayalım", "Counting")
+                GameType.SHADOW_MATCH -> label(language, "Gölgeyi Bul", "Find the Shadow")
+                GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> label(language, "Farklı Olanı Bul", "Find the Different One")
+                GameType.MATCHING -> label(language, "Eşini Bul", "Match Pairs")
+                GameType.SIZE_COMPARISON -> label(language, "Büyük - Küçük", "Big and Small")
+                GameType.FUNCTIONAL_MATCH -> label(language, "Neyle Kullanılır?", "What Goes Together?")
+                GameType.SAME_OBJECT -> label(language, "Aynısını Bul", "Find the Same")
+                GameType.FIND_THE_PAIR -> label(language, "Çiftini Bul", "Find the Pair")
+                GameType.SEQUENCE_LOGIC, GameType.WHAT_IS_NEXT -> label(language, "Mantık Sırası", "Logic Sequence")
+                else -> label(language, "Eğlence Vakti", "Play Time")
             }
         },
-        instruction = currentContent.instruction ?: "",
-        progress = (index + 1).toFloat() / sortedItems.size,
-        onBack = { if (index > 0) index-- else showBackDialog = true },
+        instruction = localizedInstruction(currentContent, language),
+        progress = (session.index + 1).toFloat() / sortedItems.size,
+        scoreText = label(language, "Doğru ${session.correctCount}  Hata ${session.wrongStreak}/3", "Right ${session.correctCount}  Miss ${session.wrongStreak}/3"),
+        onBack = { if (session.index > 0) session.index-- else showBackDialog = true },
         onExit = { showBackDialog = true },
         isSoundEnabled = isSoundEnabled,
-        onToggleSound = { isSoundEnabled = !isSoundEnabled },
-        onSound = { tts.speak(currentContent.instruction ?: "", TextToSpeech.QUEUE_FLUSH, null, null) }
+        onToggleSound = onToggleSound
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -144,7 +205,7 @@ fun GameScreen(
                     when {
                         content.category == GameCategory.AUDIOLOGY -> AudiologyView()
                         content.category == GameCategory.MEMORY -> MemoryView(content, isHidden)
-                        content.type == GameType.PATTERN || content.type == GameType.WHAT_IS_NEXT -> PatternGameView(content, isCorrect)
+                        content.type == GameType.PATTERN || content.type == GameType.WHAT_IS_NEXT || content.type == GameType.SEQUENCE_LOGIC -> PatternGameView(content, isCorrect)
                         content.type == GameType.COUNTING -> CountingGameView(content)
                         content.type == GameType.SHADOW_MATCH -> ShadowGameView(content)
                         content.type == GameType.WHICH_IS_DIFFERENT || content.type == GameType.ODD_ONE_OUT -> DifferentGameView(content)
@@ -156,26 +217,20 @@ fun GameScreen(
                             onRightSelect = { right ->
                                 if (selectedLeft != null) {
                                     if (checkMatch(content, selectedLeft!!, right)) {
-                                        matchedPairs = matchedPairs + selectedLeft!! + right
+                                        val updatedPairs = matchedPairs + selectedLeft!! + right
+                                        updateQuestion(questionProgress.copy(matchedPairs = updatedPairs))
                                         selectedLeft = null
                                         
-                                        val allLeftMatched = content.questionAssets?.all { matchedPairs.contains(it) } ?: true
-                                        val allRightMatched = content.options?.all { matchedPairs.contains(it) } ?: true
+                                        val allLeftMatched = content.questionAssets?.all { updatedPairs.contains(it) } ?: true
+                                        val allRightMatched = content.options?.all { updatedPairs.contains(it) } ?: true
                                         
                                         if (allLeftMatched && allRightMatched) {
-                                            isCorrect = true
-                                            if (isSoundEnabled) {
-                                                tts.speak("Harika! Hepsini buldun.", TextToSpeech.QUEUE_FLUSH, null, null)
-                                            }
+                                            markCorrect(label(language, "Doğru.", "Right."))
                                         } else {
-                                            if (isSoundEnabled) {
-                                                tts.speak("Aferin!", TextToSpeech.QUEUE_FLUSH, null, null)
-                                            }
+                                            speak(tts, label(language, "Tamam.", "Good."), language, isSoundEnabled)
                                         }
                                     } else {
-                                        if (isSoundEnabled) {
-                                            tts.speak("Bu onunla eşleşmiyor.", TextToSpeech.QUEUE_FLUSH, null, null)
-                                        }
+                                        markMistake(label(language, "Olmadı.", "No."))
                                         selectedLeft = null
                                     }
                                 }
@@ -200,21 +255,16 @@ fun GameScreen(
                         val shuffledOptions = remember(currentContent) { currentContent.options?.shuffled() ?: emptyList() }
                         OptionsGrid(shuffledOptions) { selected ->
                             if (selected.equals(currentContent.answer, ignoreCase = true)) {
-                                isCorrect = true
-                                if (isSoundEnabled) {
-                                    tts.speak("Harika! Doğru cevap.", TextToSpeech.QUEUE_FLUSH, null, null)
-                                }
+                                markCorrect(label(language, "Doğru.", "Right."))
                             } else {
-                                if (isSoundEnabled) {
-                                    tts.speak("Bir daha dene bakalım.", TextToSpeech.QUEUE_FLUSH, null, null)
-                                }
+                                markMistake(label(language, "Olmadı.", "No."))
                             }
                         }
                     }
                 } else {
                     Button(
                         onClick = {
-                            if (index < sortedItems.size - 1) index++ else onBack()
+                            if (session.index < sortedItems.size - 1) session.index++ else onBack()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -223,7 +273,7 @@ fun GameScreen(
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                     ) {
-                        Text("SÜPER! SONRAKİNE GEÇ ➔", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                        Text(label(language, "İleri", "Next"), fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 }
             }
@@ -279,6 +329,15 @@ fun AudiologyView() {
 }
 
 fun checkMatch(content: GameContent, left: String, right: String): Boolean {
+    val orderedPairs = content.questionAssets.orEmpty().zip(content.options.orEmpty())
+    if (orderedPairs.any {
+            (it.first.equals(left, ignoreCase = true) && it.second.equals(right, ignoreCase = true)) ||
+                (it.first.equals(right, ignoreCase = true) && it.second.equals(left, ignoreCase = true))
+        }
+    ) {
+        return true
+    }
+
     val functionalMap = mapOf(
         "apple" to "tree", "elma" to "ağaç",
         "bee" to "flower", "arı" to "çiçek",
@@ -309,7 +368,7 @@ fun checkMatch(content: GameContent, left: String, right: String): Boolean {
     )
     
     return when(content.type) {
-        GameType.FUNCTIONAL_MATCH -> {
+        GameType.FUNCTIONAL_MATCH, GameType.MATCHING -> {
             if (content.category == GameCategory.GEOMETRY) {
                 (geometryEdgeMap[left.uppercase()] == right.uppercase()) ||
                 (geometryEdgeMap[right.uppercase()] == left.uppercase())
@@ -320,6 +379,46 @@ fun checkMatch(content: GameContent, left: String, right: String): Boolean {
         }
         else -> left.equals(right, ignoreCase = true)
     }
+}
+
+fun label(language: AppLanguage, tr: String, en: String): String =
+    if (language == AppLanguage.TR) tr else en
+
+fun localizedInstruction(content: GameContent, language: AppLanguage): String {
+    return when (content.type) {
+        GameType.PATTERN, GameType.WHAT_IS_NEXT -> label(language, "Sıradakini bul.", "Find next.")
+        GameType.COUNTING -> label(language, "Say ve seç.", "Count and pick.")
+        GameType.SHADOW_MATCH -> label(language, "Gölgeyi bul.", "Find shadow.")
+        GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> label(language, "Farklıyı bul.", "Find different.")
+        GameType.MATCHING -> label(language, "Eşleştir.", "Match.")
+        GameType.FUNCTIONAL_MATCH -> label(language, "Birlikte olanları bul.", "Match pairs.")
+        GameType.SIZE_COMPARISON -> label(language, "Doğru olanı seç.", "Pick one.")
+        GameType.SAME_OBJECT, GameType.FIND_THE_PAIR -> label(language, "Aynısını bul.", "Find same.")
+        else -> label(language, "Seç.", "Pick.")
+    }
+}
+
+fun configureVoice(tts: TextToSpeech, language: AppLanguage) {
+    tts.language = language.locale
+    tts.setSpeechRate(if (language == AppLanguage.TR) 0.88f else 0.92f)
+    tts.setPitch(if (language == AppLanguage.TR) 1.12f else 1.08f)
+    val bestVoice = tts.voices
+        ?.filter { it.locale.language == language.locale.language }
+        ?.maxByOrNull { voice ->
+            val name = voice.name.lowercase(Locale.ROOT)
+            val feminineHint = listOf("female", "woman", "girl", "kadin", "kadın", "fem").any { it in name }
+            val naturalHint = listOf("network", "neural", "wavenet", "premium").any { it in name }
+            voice.quality * 1000 - voice.latency + (if (feminineHint) 500 else 0) + (if (naturalHint) 250 else 0)
+        }
+    if (bestVoice != null) {
+        tts.voice = bestVoice
+    }
+}
+
+fun speak(tts: TextToSpeech, text: String, language: AppLanguage, enabled: Boolean) {
+    if (!enabled || text.isBlank()) return
+    configureVoice(tts, language)
+    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, text.hashCode().toString())
 }
 
 @Composable
@@ -726,6 +825,10 @@ fun AssetIcon(name: String, size: Dp = 50.dp, isShadow: Boolean = false) {
         "ERASER", "SİLGİ" -> "🧼"
         "SHARK", "KÖPEK BALIĞI" -> "🦈"
         "WHALE", "BALİNA" -> "🐋"
+        "RIGHT" -> "➡️"
+        "LEFT" -> "⬅️"
+        "UP" -> "⬆️"
+        "DOWN" -> "⬇️"
         else -> null
     }
 

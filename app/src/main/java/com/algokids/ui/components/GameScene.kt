@@ -25,11 +25,11 @@ fun GameScene(
     title: String,
     instruction: String,
     progress: Float = 0.5f,
+    scoreText: String = "",
     onBack: () -> Unit,
     onExit: () -> Unit = {},
     isSoundEnabled: Boolean = true,
     onToggleSound: () -> Unit = {},
-    onSound: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
@@ -103,17 +103,6 @@ fun GameScene(
                         tint = if (isSoundEnabled) Color(0xFF1976D2) else Color.Gray
                     )
                 }
-
-                // Tekrar Dinle Butonu
-                IconButton(
-                    onClick = onSound,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color.White, CircleShape)
-                        .shadow(2.dp, CircleShape)
-                ) {
-                    Icon(Icons.Default.VolumeUp, contentDescription = "Tekrar Dinle", tint = Color(0xFF1976D2))
-                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -124,6 +113,15 @@ fun GameScene(
                 fontWeight = FontWeight.ExtraBold,
                 color = Color(0xFF2E7D32)
             )
+
+            if (scoreText.isNotBlank()) {
+                Text(
+                    text = scoreText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1976D2)
+                )
+            }
             
             Text(
                 text = instruction,

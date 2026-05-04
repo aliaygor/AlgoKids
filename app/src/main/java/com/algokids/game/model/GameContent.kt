@@ -18,5 +18,6 @@ enum class GameCategory {
     ATTENTION,   // Dikkat
     MEMORY,      // Hafıza
     AUDIOLOGY,   // İşitsel Algı
-    GEOMETRY     // Geometri/Şekil
+    GEOMETRY,    // Geometri/Şekil
+    ALGORITHM    // Algoritmik düşünme
 }
