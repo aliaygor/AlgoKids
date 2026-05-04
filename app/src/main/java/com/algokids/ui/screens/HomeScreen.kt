@@ -39,6 +39,7 @@ fun HomeScreen(
     onStorySelect: (Story) -> Unit
 ) {
     var section by remember { mutableStateOf(HomeSection.GAMES) }
+    var showPrivacy by remember { mutableStateOf(false) }
 
     val categories = listOf(
         CategoryItem(label(language, "Görsel Algı", "Visual Skills"), Icons.Default.Visibility, Color(0xFFFF7043), GameCategory.VISUAL),
@@ -203,6 +204,11 @@ fun HomeScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("AlgoKids", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp) },
+                actions = {
+                    IconButton(onClick = { showPrivacy = true }) {
+                        Icon(Icons.Default.PrivacyTip, contentDescription = null, tint = Color(0xFF2E7D32))
+                    }
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = Color(0xFF2E7D32)
@@ -210,6 +216,27 @@ fun HomeScreen(
             )
         }
     ) { padding ->
+        if (showPrivacy) {
+            AlertDialog(
+                onDismissRequest = { showPrivacy = false },
+                title = { Text(label(language, "Gizlilik", "Privacy")) },
+                text = {
+                    Text(
+                        label(
+                            language,
+                            "AlgoKids hesap istemez, reklam göstermez, internet kullanmaz. Kamera, mikrofon, konum ve kişi bilgisi istemez. Oyun ilerlemesi sadece cihaz içinde tutulur.",
+                            "AlgoKids does not require accounts, show ads, or use internet. It does not request camera, microphone, location, or contacts. Game progress stays on the device."
+                        )
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showPrivacy = false }) {
+                        Text(label(language, "Tamam", "OK"))
+                    }
+                }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
