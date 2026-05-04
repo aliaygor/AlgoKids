@@ -1,0 +1,16 @@
+[
+  {
+    "id": "p1",
+    "type": "PATTERN",
+    "sequence": ["RED", "BLUE", "RED"],
+    "options": ["BLUE", "GREEN"],
+    "answer": "BLUE"
+  },
+  {
+    "id": "p2",
+    "type": "PATTERN",
+    "sequence": ["BIG", "SMALL", "BIG"],
+    "options": ["SMALL", "BIG"],
+    "answer": "SMALL"
+  }
+]
