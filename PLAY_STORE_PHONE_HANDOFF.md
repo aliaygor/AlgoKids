@@ -25,14 +25,18 @@ Orijinal build ciktilari:
 
 Google Play Console'da `Android gelistirici dogrulamasi` ekraninda APK isterse:
 
-1. `Anahtari degistir` ile asagidaki SHA-256 fingerprint'e sahip anahtari sec.
-2. `play-store-ready/AlgoKids-verification.apk` dosyasini yukle.
+1. Ekranda asagidaki SHA-256 fingerprint gorunuyorsa `play-store-ready/AlgoKids-verification.apk` dosyasini yukle.
+2. Bu APK yalnizca paket sahipligi dogrulamasi icindir; normal uygulama surumu olarak kullanilmaz.
 
-Upload key SHA-256:
+Paket dogrulama APK SHA-256:
+
+`44:64:55:C9:E6:4E:9B:0A:3D:15:D8:4D:95:F3:DB:A9:13:72:06:FB:5C:CD:45:7D:AE:43:CA:EC:BF:0F:EA:AB`
+
+Normal release/upload key SHA-256:
 
 `9C:2C:E5:1B:11:F2:55:55:EE:A9:A7:8F:5A:53:FD:01:CC:32:A8:11:F1:F8:D3:32:37:8A:B5:10:BC:D0:FF:00`
 
-Ekranda baska bir fingerprint gorunuyorsa bu APK yuklenmemeli; once anahtar eslestirilmeli.
+Ekranda baska bir fingerprint gorunuyorsa bu APK yuklenmemeli; once hangi anahtar istendigini tekrar kontrol etmek gerekir.
 
 ## Normal Surum Yukleme
 
