@@ -56,6 +56,7 @@ fun HomeScreen(
         Story(
             id = "s1",
             title = "Küçük Karınca",
+            titleEn = "Little Ant",
             content = "",
             pages = listOf(
                 "Bir zamanlar çok çalışkan küçük bir karınca varmış.",
@@ -68,11 +69,23 @@ fun HomeScreen(
                 "O günden sonra büyük işleri hep birlikte yapmışlar.",
                 "Birlikten kuvvet doğarmış!"
             ),
+            pagesEn = listOf(
+                "Once there was a tiny ant who worked very hard.",
+                "All day, the ant carried food to her home.",
+                "One day she found a big crumb of bread.",
+                "The crumb was too big to carry alone.",
+                "She called her friends, and together they carried it home.",
+                "When they arrived, everyone took a little rest.",
+                "The tiny ant thanked her friends.",
+                "After that day, they did big jobs together.",
+                "Working together makes us strong!"
+            ),
             pageImages = listOf("🐜", "🍎", "🍞", "😰", "🐜🐜🐜", "🏠", "😊", "💪", "💪")
         ),
         Story(
             id = "s2",
             title = "Cesur Tavşan",
+            titleEn = "Brave Bunny",
             content = "",
             pages = listOf(
                 "Ormanın derinliklerinde Cesur adında minik bir tavşan yaşarmış.",
@@ -84,11 +97,22 @@ fun HomeScreen(
                 "Orada yeni arkadaşlar edinmiş ve ertesi gün onları yuvasına çağırmış.",
                 "Cesur, keşfetmenin güzel olduğunu ama dikkatli olmanın da önemli olduğunu öğrenmiş."
             ),
+            pagesEn = listOf(
+                "Deep in the forest lived a little bunny named Brave.",
+                "Brave loved to discover new places.",
+                "One morning he decided to find where the rainbow ended.",
+                "He crossed a stream, climbed hills, and found a colorful flower garden.",
+                "He dropped little stones so he would not get lost.",
+                "In the evening, he followed the stones back home.",
+                "He met new friends and invited them to his burrow.",
+                "Brave learned that exploring is fun, and being careful matters too."
+            ),
             pageImages = listOf("🐰", "🧭", "🌈", "🌸", "🪨", "🏠", "🦊🐻🐰", "😊")
         ),
         Story(
             id = "s3",
             title = "Uzay Yolculuğu",
+            titleEn = "Space Trip",
             content = "",
             pages = listOf(
                 "Ali, bir gece rüyasında dev bir rokete bindiğini gördü.",
@@ -101,11 +125,23 @@ fun HomeScreen(
                 "Ali uyandığında yastığının altında gümüş bir parıltı vardı.",
                 "O parıltı ona rüyasını hatırlattı."
             ),
+            pagesEn = listOf(
+                "One night, Ali dreamed he climbed into a giant rocket.",
+                "The rocket flew into the sky with a loud whoosh.",
+                "From the window, Earth looked smaller and smaller.",
+                "On the Moon, he met funny jumping aliens.",
+                "The aliens gave him a little star dust.",
+                "Ali counted the stars and chose the brightest one.",
+                "As the rocket came home, Earth grew bigger again.",
+                "When Ali woke up, a silver sparkle was under his pillow.",
+                "The sparkle reminded him of his dream."
+            ),
             pageImages = listOf("🚀", "🔥", "🌍", "👽", "✨", "⭐", "🌍", "🛌", "✨")
         ),
         Story(
             id = "s4",
             title = "Kayıp Renkler",
+            titleEn = "The Lost Colors",
             content = "",
             pages = listOf(
                 "Elif'in boya kutusunda bir sabah bütün renkler birbirine karışmıştı.",
@@ -114,11 +150,19 @@ fun HomeScreen(
                 "Renkler doğru yerlerine dönünce resim defteri yeniden parladı.",
                 "Elif her rengin kendi yerinde daha güzel göründüğünü öğrendi."
             ),
+            pagesEn = listOf(
+                "One morning, all the colors in Elif's paint box were mixed up.",
+                "She put red with the apple, yellow with the sun, and blue with the sky.",
+                "Then she lined the colors up and made a small rainbow.",
+                "When every color found its place, her notebook shined again.",
+                "Elif learned that each color looks lovely in the right place."
+            ),
             pageImages = listOf("🎨", "🍎☀️🌌", "🌈", "📒", "😊")
         ),
         Story(
             id = "s5",
             title = "Robotun Planı",
+            titleEn = "Robot's Plan",
             content = "",
             pages = listOf(
                 "Mert küçük robotuna odasını toplamayı öğretmek istedi.",
@@ -127,11 +171,19 @@ fun HomeScreen(
                 "Sonunda robot sırayı öğrendi ve oda pırıl pırıl oldu.",
                 "Mert iyi bir planın işleri kolaylaştırdığını fark etti."
             ),
+            pagesEn = listOf(
+                "Mert wanted to teach his little robot to tidy the room.",
+                "First he wrote a rule: toys go in the box, books go on the shelf.",
+                "The robot got confused sometimes, but Mert fixed the steps one by one.",
+                "At last, the robot learned the order and the room became shiny clean.",
+                "Mert saw that a good plan makes work easier."
+            ),
             pageImages = listOf("🤖", "🧸📚", "🛠️", "✨", "🧠")
         ),
         Story(
             id = "s6",
             title = "Deniz Feneri",
+            titleEn = "The Lighthouse",
             content = "",
             pages = listOf(
                 "Minik kaptan Ada sisli bir akşam denizde yolunu arıyordu.",
@@ -140,11 +192,19 @@ fun HomeScreen(
                 "Limana vardığında fener bekçisine teşekkür etti.",
                 "Ada, dikkatli bakmanın bazen en iyi pusula olduğunu öğrendi."
             ),
+            pagesEn = listOf(
+                "Little captain Ada was looking for her way on a foggy evening.",
+                "Far away, she saw the lighthouse blinking.",
+                "She followed the light and stayed safely away from the rocks.",
+                "When she reached the harbor, she thanked the lighthouse keeper.",
+                "Ada learned that looking carefully can be the best compass."
+            ),
             pageImages = listOf("⛵", "💡", "🌊", "🏠", "🧭")
         ),
         Story(
             id = "s7",
             title = "Minik Mimar",
+            titleEn = "Little Builder",
             content = "",
             pages = listOf(
                 "Zeynep bloklarıyla sağlam bir köprü yapmak istiyordu.",
@@ -153,11 +213,19 @@ fun HomeScreen(
                 "Köprü sallanınca altına bir destek daha ekledi.",
                 "Arabası köprüden geçince planının işe yaradığını gördü."
             ),
+            pagesEn = listOf(
+                "Zeynep wanted to build a strong bridge with her blocks.",
+                "First she placed two big cubes side by side.",
+                "Then she put a long rectangle on top.",
+                "When the bridge wobbled, she added one more support.",
+                "When her car crossed the bridge, she saw her plan worked."
+            ),
             pageImages = listOf("🏗️", "🎲🎲", "▭", "🧱", "🚗")
         ),
         Story(
             id = "s8",
             title = "Sessiz Kütüphane",
+            titleEn = "Quiet Library",
             content = "",
             pages = listOf(
                 "Can kütüphanede en sevdiği kitabı arıyordu.",
@@ -166,11 +234,19 @@ fun HomeScreen(
                 "Mavi rafta aradığı kitabı buldu.",
                 "Örüntüleri görmek Can'ın işini kolaylaştırmıştı."
             ),
+            pagesEn = listOf(
+                "Can was looking for his favorite book in the library.",
+                "He followed the shelf colors: red, blue, red, blue.",
+                "He noticed the next shelf should be blue.",
+                "On the blue shelf, he found the book he wanted.",
+                "Seeing the pattern made Can's job easier."
+            ),
             pageImages = listOf("📚", "🔴🔵", "🔵", "📖", "😊")
         ),
         Story(
             id = "s9",
             title = "Yağmurdan Sonra",
+            titleEn = "After the Rain",
             content = "",
             pages = listOf(
                 "Yağmur durunca Ece bahçeye çıktı.",
@@ -179,11 +255,19 @@ fun HomeScreen(
                 "Ece yaprağı yolun kenarına taşıdı.",
                 "Küçük canlılara dikkat etmek bahçeyi daha güvenli yaptı."
             ),
+            pagesEn = listOf(
+                "When the rain stopped, Ece went into the garden.",
+                "She saw tiny footprints in the soil.",
+                "She followed them and found a snail climbing a leaf.",
+                "Ece moved the leaf to the side of the path.",
+                "Taking care of little creatures made the garden safer."
+            ),
             pageImages = listOf("🌧️", "👣", "🍃", "🤲", "🌱")
         ),
         Story(
             id = "s10",
             title = "Kaybolan Melodi",
+            titleEn = "The Missing Melody",
             content = "",
             pages = listOf(
                 "Ada'nın müzik kutusu bir sabah aynı melodiyi çalmıyordu.",
@@ -191,6 +275,13 @@ fun HomeScreen(
                 "Sesleri doğru sıraya koyunca melodi geri geldi.",
                 "Ada her sesi dikkatle dinlediğinde daha iyi hatırladığını anladı.",
                 "Müzik kutusu yeniden neşeli neşeli çalmaya başladı."
+            ),
+            pagesEn = listOf(
+                "Ada's music box did not play the same melody one morning.",
+                "First she heard a bell, then a bird, and last a train.",
+                "When she put the sounds in the right order, the melody came back.",
+                "Ada learned that listening carefully helps her remember.",
+                "The music box played happily again."
             ),
             pageImages = listOf("🎵", "🔔🐦🚂", "🎼", "👂", "🎶")
         )
@@ -276,7 +367,7 @@ fun HomeScreen(
 
                 if (section == HomeSection.GAMES) {
                     Text(
-                        text = label(language, "3 hata olursa başa dönersin.", "3 misses restart."),
+                        text = label(language, "Yanlış yapınca tekrar deneyebilirsin.", "Try again when you miss."),
                         modifier = Modifier.padding(horizontal = 20.dp),
                         color = Color(0xFF546E7A),
                         fontSize = 13.sp
@@ -308,7 +399,7 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(displayedStories) { story ->
-                            StoryCard(story) { onStorySelect(story) }
+                            StoryCard(story, language) { onStorySelect(story) }
                         }
                     }
                 }
@@ -348,7 +439,7 @@ fun CategoryCard(category: CategoryItem, onClick: () -> Unit) {
 }
 
 @Composable
-fun StoryCard(story: Story, onClick: () -> Unit) {
+fun StoryCard(story: Story, language: AppLanguage, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -364,7 +455,11 @@ fun StoryCard(story: Story, onClick: () -> Unit) {
         ) {
             Icon(Icons.Default.AutoStories, null, modifier = Modifier.size(40.dp), tint = Color(0xFF8BC34A))
             Spacer(Modifier.width(16.dp))
-            Text(story.title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text(
+                label(language, story.title, story.titleEn),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
             Spacer(Modifier.weight(1f))
             Icon(Icons.Default.ArrowForwardIos, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
         }

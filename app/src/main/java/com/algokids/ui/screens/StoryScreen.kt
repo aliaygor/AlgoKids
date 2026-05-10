@@ -2,6 +2,7 @@ package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -45,6 +46,8 @@ fun StoryScreen(
     }
     var currentPage by remember { mutableIntStateOf(0) }
     fun storyLabel(tr: String, en: String) = if (language == AppLanguage.TR) tr else en
+    val storyTitle = storyLabel(story.title, story.titleEn)
+    val storyPages = if (language == AppLanguage.TR) story.pages else story.pagesEn
     fun configureStoryVoice() {
         tts.language = language.locale
         tts.setSpeechRate(if (language == AppLanguage.TR) 0.78f else 0.84f)
@@ -73,13 +76,21 @@ fun StoryScreen(
         if (isSoundEnabled && isTtsReady) {
             configureStoryVoice()
             tts.speak(
-                story.pages[currentPage],
+                storyPages[currentPage],
                 TextToSpeech.QUEUE_FLUSH,
                 null,
                 "story_${story.id}_$currentPage"
             )
         } else if (!isSoundEnabled) {
             tts.stop()
+        }
+    }
+
+    BackHandler {
+        if (currentPage > 0) {
+            currentPage--
+        } else {
+            onBack()
         }
     }
 
@@ -108,7 +119,7 @@ fun StoryScreen(
                 }
 
                 Text(
-                    text = story.title,
+                    text = storyTitle,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32)
@@ -164,7 +175,7 @@ fun StoryScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = story.pages[currentPage],
+                            text = storyPages[currentPage],
                             fontSize = 22.sp,
                             lineHeight = 32.sp,
                             textAlign = TextAlign.Center,
@@ -191,17 +202,17 @@ fun StoryScreen(
                     Text(storyLabel("Geri", "Back"))
                 }
 
-                Text("${currentPage + 1} / ${story.pages.size}", fontWeight = FontWeight.Bold)
+                Text("${currentPage + 1} / ${storyPages.size}", fontWeight = FontWeight.Bold)
 
                 Button(
                     onClick = { 
-                        if (currentPage < story.pages.size - 1) {
+                        if (currentPage < storyPages.size - 1) {
                             currentPage++
                         } else onBack()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8BC34A))
                 ) {
-                    Text(if (currentPage < story.pages.size - 1) storyLabel("İleri", "Next") else storyLabel("Bitti", "Done"))
+                    Text(if (currentPage < storyPages.size - 1) storyLabel("İleri", "Next") else storyLabel("Bitti", "Done"))
                     Icon(Icons.Default.ArrowForward, null)
                 }
             }

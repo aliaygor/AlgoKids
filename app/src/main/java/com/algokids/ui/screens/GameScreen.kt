@@ -2,6 +2,7 @@ package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -118,15 +119,14 @@ fun GameScreen(
         speak(tts, feedback, language, isSoundEnabled)
     }
 
+    fun goBackOneStep() {
+        if (session.index > 0) session.index-- else showBackDialog = true
+    }
+
     fun markMistake(feedback: String) {
         session.mistakeCount++
         session.wrongStreak++
-        if (session.wrongStreak >= 3) {
-            speak(tts, label(language, "Başa dönüyoruz.", "Back to start."), language, isSoundEnabled)
-            session.restart()
-        } else {
-            speak(tts, feedback, language, isSoundEnabled)
-        }
+        speak(tts, feedback, language, isSoundEnabled)
     }
     
     LaunchedEffect(currentContent) {
@@ -162,6 +162,8 @@ fun GameScreen(
         )
     }
 
+    BackHandler { goBackOneStep() }
+
     GameScene(
         title = when(currentContent.category) {
             GameCategory.MEMORY -> label(language, "Hafıza Gücü", "Memory")
@@ -184,8 +186,8 @@ fun GameScreen(
         },
         instruction = localizedInstruction(currentContent, language),
         progress = (session.index + 1).toFloat() / sortedItems.size,
-        scoreText = label(language, "Doğru ${session.correctCount}  Hata ${session.wrongStreak}/3", "Right ${session.correctCount}  Miss ${session.wrongStreak}/3"),
-        onBack = { if (session.index > 0) session.index-- else showBackDialog = true },
+        scoreText = label(language, "Doğru ${session.correctCount}  Hata ${session.mistakeCount}", "Right ${session.correctCount}  Miss ${session.mistakeCount}"),
+        onBack = { goBackOneStep() },
         onExit = { showBackDialog = true },
         isSoundEnabled = isSoundEnabled,
         onToggleSound = onToggleSound
@@ -392,9 +394,19 @@ fun localizedInstruction(content: GameContent, language: AppLanguage): String {
         GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> label(language, "Farklıyı bul.", "Find different.")
         GameType.MATCHING -> label(language, "Eşleştir.", "Match.")
         GameType.FUNCTIONAL_MATCH -> label(language, "Birlikte olanları bul.", "Match pairs.")
-        GameType.SIZE_COMPARISON -> label(language, "Doğru olanı seç.", "Pick one.")
+        GameType.SIZE_COMPARISON -> sizeComparisonInstruction(content, language)
         GameType.SAME_OBJECT, GameType.FIND_THE_PAIR -> label(language, "Aynısını bul.", "Find same.")
         else -> label(language, "Seç.", "Pick.")
+    }
+}
+
+private fun sizeComparisonInstruction(content: GameContent, language: AppLanguage): String {
+    val raw = (content.instruction ?: "").lowercase(Locale.ROOT)
+    return when {
+        listOf("küçük", "kucuk", "small").any { it in raw } -> label(language, "En küçük olanı seç.", "Pick the smallest one.")
+        listOf("uzun", "tall", "long").any { it in raw } -> label(language, "En uzun olanı seç.", "Pick the tallest one.")
+        listOf("büyük", "buyuk", "big", "large").any { it in raw } -> label(language, "En büyük olanı seç.", "Pick the biggest one.")
+        else -> label(language, "İstenen resmi seç.", "Pick the asked picture.")
     }
 }
 
@@ -424,21 +436,26 @@ fun speak(tts: TextToSpeech, text: String, language: AppLanguage, enabled: Boole
 @Composable
 fun SizeComparisonView(content: GameContent) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.Bottom
     ) {
         content.questionAssets?.forEach { asset ->
             val size = when(asset.lowercase()) {
-                "elephant", "fil", "big", "büyük" -> 140.dp
-                "cat", "kedi", "medium", "orta" -> 80.dp
-                "ant", "karınca", "small", "küçük" -> 40.dp
-                "giraffe", "zürafa" -> 150.dp
-                "lion", "aslan" -> 110.dp
-                "rabbit", "tavşan" -> 60.dp
-                else -> 80.dp
+                "elephant", "fil", "big", "büyük" -> 88.dp
+                "cat", "kedi", "medium", "orta" -> 68.dp
+                "ant", "karınca", "small", "küçük" -> 42.dp
+                "giraffe", "zürafa" -> 92.dp
+                "lion", "aslan" -> 74.dp
+                "rabbit", "tavşan" -> 56.dp
+                else -> 66.dp
             }
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(8.dp)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(112.dp)
+            ) {
                 AssetIcon(asset, size = size)
             }
         }

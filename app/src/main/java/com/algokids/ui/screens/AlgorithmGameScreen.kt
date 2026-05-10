@@ -1,6 +1,7 @@
 package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -120,8 +121,8 @@ fun AlgorithmGameScreen(
         if (!isSoundEnabled && !force) return
         val guide = label(
             language,
-            "${level.title}. ${level.helper} Oklara bas. Sonra başlat.",
-            "${level.title}. ${level.helper} Tap arrows. Then run."
+            "${level.title}. Okları diz, başlat.",
+            "${level.title}. Add arrows, then run."
         )
         speak(tts, guide, language, true)
     }
@@ -160,14 +161,10 @@ fun AlgorithmGameScreen(
             misses++
             message = label(language, "Bir daha deneyelim.", "Try again.")
             speakShort(label(language, "Bir daha deneyelim.", "Try again."))
-            if (misses >= 3) {
-                misses = 0
-                score = 0
-                loadLevel(0)
-                speakShort(label(language, "Başa dönüyoruz.", "Start again."))
-            }
         }
     }
+
+    BackHandler { onBack() }
 
     Box(
         modifier = Modifier
@@ -202,8 +199,8 @@ fun AlgorithmGameScreen(
                             onToggleSound()
                             val guide = label(
                                 language,
-                                "Ses açık. ${level.title}. ${level.helper} Oklara bas. Sonra başlat.",
-                                "Sound on. ${level.title}. ${level.helper} Tap arrows. Then run."
+                                "Ses açık. ${level.title}. Okları diz, başlat.",
+                                "Sound on. ${level.title}. Add arrows, then run."
                             )
                             speak(tts, guide, language, true)
                         }
@@ -217,7 +214,7 @@ fun AlgorithmGameScreen(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                text = "${levelIndex + 1}/${levels.size}   ${label(language, "Puan", "Score")} $score   ${label(language, "Hata", "Miss")} $misses/3",
+                text = "${levelIndex + 1}/${levels.size}   ${label(language, "Puan", "Score")} $score   ${label(language, "Hata", "Miss")} $misses",
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
