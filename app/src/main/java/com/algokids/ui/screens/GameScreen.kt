@@ -3,8 +3,6 @@ package com.algokids.ui.screens
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -95,6 +93,12 @@ fun GameScreen(
         onDispose {
             tts.stop()
             tts.shutdown()
+        }
+    }
+    LaunchedEffect(isTtsReady, language) {
+        if (isTtsReady) {
+            configureVoice(tts, language)
+            tts.speak(" ", TextToSpeech.QUEUE_FLUSH, null, "warmup")
         }
     }
     session.index = session.index.coerceIn(0, sortedItems.lastIndex)
@@ -527,6 +531,9 @@ fun MatchingGameView(
         shuffled
     }
 
+    val cardSize = if (leftItems.size >= 4 || rightItems.size >= 4) 54.dp else 64.dp
+    val iconSize = if (leftItems.size >= 4 || rightItems.size >= 4) 34.dp else 40.dp
+
     Row(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -535,24 +542,24 @@ fun MatchingGameView(
             leftItems.forEach { item ->
                 val isMatched = matchedPairs.contains(item)
                 val isSelected = selectedLeft == item
-                MatchingCard(item, isMatched, isSelected) { onLeftSelect(item) }
+                MatchingCard(item, isMatched, isSelected, cardSize, iconSize) { onLeftSelect(item) }
             }
         }
 
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             rightItems.forEach { item ->
                 val isMatched = matchedPairs.contains(item)
-                MatchingCard(item, isMatched, false) { onRightSelect(item) }
+                MatchingCard(item, isMatched, false, cardSize, iconSize) { onRightSelect(item) }
             }
         }
     }
 }
 
 @Composable
-fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, onClick: () -> Unit) {
+fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, cardSize: Dp, iconSize: Dp, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .size(65.dp)
+            .size(cardSize)
             .shadow(if (isSelected) 8.dp else 2.dp, RoundedCornerShape(16.dp))
             .background(
                 if (isMatched) Color(0xFFE8F5E9) else if (isSelected) Color(0xFFFFF9C4) else Color.White,
@@ -566,7 +573,7 @@ fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, onClick:
             .clickable(enabled = !isMatched) { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        AssetIcon(name, size = 40.dp)
+        AssetIcon(name, size = iconSize)
         if (isMatched) {
             Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF4CAF50), modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(18.dp))
         }
@@ -574,24 +581,33 @@ fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, onClick:
 }
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun OptionsGrid(options: List<String>, onSelected: (String) -> Unit) {
-    FlowRow(
+    val itemSize = when {
+        options.size >= 5 -> 54.dp
+        options.size == 4 -> 62.dp
+        else -> 74.dp
+    }
+    val iconSize = when {
+        options.size >= 5 -> 32.dp
+        options.size == 4 -> 38.dp
+        else -> 44.dp
+    }
+    Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         options.forEach { option ->
             Card(
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(itemSize)
                     .clickable { onSelected(option) }
-                    .shadow(4.dp, RoundedCornerShape(20.dp)),
-                shape = RoundedCornerShape(20.dp),
+                    .shadow(3.dp, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    AssetIcon(option, size = 45.dp)
+                    AssetIcon(option, size = iconSize)
                 }
             }
         }
@@ -599,31 +615,39 @@ fun OptionsGrid(options: List<String>, onSelected: (String) -> Unit) {
 }
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class)
 fun PatternGameView(content: GameContent, isCorrect: Boolean) {
-    FlowRow(
+    Row(
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         val sequence = content.sequence ?: content.questionAssets ?: emptyList()
-        val iconSize = if (sequence.size >= 5) 38.dp else 45.dp
+        val iconSize = when {
+            sequence.size >= 5 -> 30.dp
+            sequence.size == 4 -> 36.dp
+            else -> 42.dp
+        }
+        val boxSize = when {
+            sequence.size >= 5 -> 48.dp
+            sequence.size == 4 -> 56.dp
+            else -> 62.dp
+        }
         sequence.forEach { item ->
             AssetIcon(item, size = iconSize)
         }
         
         Box(
             modifier = Modifier
-                .size(65.dp)
+                .size(boxSize)
                 .clip(RoundedCornerShape(16.dp))
                 .background(if (isCorrect) Color.Transparent else Color(0xFFF5F5F5))
                 .border(3.dp, if (isCorrect) Color(0xFF4CAF50) else Color(0xFFBDBDBD), RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
-            if (isCorrect) AssetIcon(content.answer ?: "", size = 50.dp)
-            else Text("?", fontSize = 32.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9E9E9E))
+            if (isCorrect) AssetIcon(content.answer ?: "", size = iconSize)
+            else Text("?", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color(0xFF9E9E9E))
         }
     }
 }

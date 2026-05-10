@@ -72,6 +72,12 @@ fun StoryScreen(
             tts.shutdown()
         }
     }
+    LaunchedEffect(isTtsReady, language) {
+        if (isTtsReady) {
+            configureStoryVoice()
+            tts.speak(" ", TextToSpeech.QUEUE_FLUSH, null, "story_warmup")
+        }
+    }
 
     LaunchedEffect(story.id, currentPage, language, isSoundEnabled, isTtsReady) {
         if (isSoundEnabled && isTtsReady) {
