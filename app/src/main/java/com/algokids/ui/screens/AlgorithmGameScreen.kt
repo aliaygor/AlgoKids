@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -123,7 +124,7 @@ fun AlgorithmGameScreen(
         val guide = label(
             language,
             "${level.title}. Okları diz, başlat.",
-            "Make a path. Add arrows. Then run."
+            "Make a path. Add arrows. Run."
         )
         if (isTtsReady) speak(tts, guide, language, true)
     }
@@ -166,6 +167,10 @@ fun AlgorithmGameScreen(
     }
 
     BackHandler { onBack() }
+
+    LaunchedEffect(isTtsReady, levelIndex, language, isSoundEnabled) {
+        if (isTtsReady && isSoundEnabled) speakLevelGuide()
+    }
 
     Box(
         modifier = Modifier

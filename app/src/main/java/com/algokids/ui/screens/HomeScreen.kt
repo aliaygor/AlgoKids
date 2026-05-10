@@ -2,6 +2,8 @@
 
 package com.algokids.ui.screens
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -21,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +45,12 @@ fun HomeScreen(
     var section by remember { mutableStateOf(HomeSection.GAMES) }
     var showPrivacy by remember { mutableStateOf(false) }
     var showPerformance by remember { mutableStateOf(false) }
+    var showExitConfirm by remember { mutableStateOf(false) }
+    val activity = LocalContext.current as? Activity
+
+    BackHandler {
+        if (section == HomeSection.STORIES) section = HomeSection.GAMES else showExitConfirm = true
+    }
 
     val categories = listOf(
         CategoryItem(label(language, "Görsel Algı", "Visual Skills"), Icons.Default.Visibility, Color(0xFFFF7043), GameCategory.VISUAL),
@@ -335,20 +344,41 @@ fun HomeScreen(
         if (showPerformance) {
             AlertDialog(
                 onDismissRequest = { showPerformance = false },
-                title = { Text(label(language, "Geçmiş", "Progress")) },
+                title = { Text(label(language, "Oyun Geçmişi", "Progress")) },
                 text = {
-                    Text(
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         if (performanceSummary.isEmpty()) {
-                            label(language, "Henüz oyun oynanmadı.", "No games played yet.")
+                            Text(label(language, "Henüz oyun oynanmadı.", "No games played yet."))
                         } else {
-                            performanceSummary.joinToString("\n")
+                            performanceSummary.forEach { item ->
+                                Surface(
+                                    color = Color(0xFFE8F5E9),
+                                    shape = RoundedCornerShape(14.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(item, modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                                }
+                            }
                         }
-                    )
+                    }
                 },
                 confirmButton = {
                     TextButton(onClick = { showPerformance = false }) {
                         Text(label(language, "Tamam", "OK"))
                     }
+                }
+            )
+        }
+        if (showExitConfirm) {
+            AlertDialog(
+                onDismissRequest = { showExitConfirm = false },
+                title = { Text(label(language, "Çıkılsın mı?", "Exit?")) },
+                text = { Text(label(language, "Oyundan çıkmak ister misin?", "Do you want to exit?")) },
+                confirmButton = {
+                    Button(onClick = { activity?.finish() }) { Text(label(language, "Çık", "Exit")) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showExitConfirm = false }) { Text(label(language, "Kal", "Stay")) }
                 }
             )
         }

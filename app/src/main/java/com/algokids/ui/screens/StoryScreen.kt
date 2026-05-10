@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.algokids.game.model.Story
+import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
@@ -81,6 +82,9 @@ fun StoryScreen(
                 null,
                 "story_${story.id}_$currentPage"
             )
+            val autoDelay = (storyPages[currentPage].length * 75L).coerceIn(2200L, 9000L)
+            delay(autoDelay)
+            if (currentPage < storyPages.size - 1) currentPage++
         } else if (!isSoundEnabled) {
             tts.stop()
         }

@@ -135,7 +135,7 @@ fun GameScreen(
     LaunchedEffect(currentContent, language, isTtsReady) {
         if (!isTtsReady) return@LaunchedEffect
         configureVoice(tts, language)
-        speak(tts, localizedInstruction(currentContent, language), language, isSoundEnabled)
+        speak(tts, spokenInstruction(currentContent, language), language, isSoundEnabled)
         
         if (currentContent.category == GameCategory.MEMORY) {
             isHidden = false
@@ -209,7 +209,9 @@ fun GameScreen(
             ) {
                 AnimatedContent(targetState = currentContent, label = "") { content ->
                     when {
-                        content.category == GameCategory.AUDIOLOGY -> AudiologyView()
+                        content.category == GameCategory.AUDIOLOGY -> AudiologyView(language) {
+                            speak(tts, spokenInstruction(content, language), language, isSoundEnabled)
+                        }
                         content.category == GameCategory.MEMORY -> MemoryView(content, isHidden)
                         content.type == GameType.PATTERN || content.type == GameType.WHAT_IS_NEXT || content.type == GameType.SEQUENCE_LOGIC -> PatternGameView(content, isCorrect)
                         content.type == GameType.COUNTING -> CountingGameView(content)
@@ -318,7 +320,7 @@ fun MemoryView(content: GameContent, isHidden: Boolean) {
 }
 
 @Composable
-fun AudiologyView() {
+fun AudiologyView(language: AppLanguage, onPlaySound: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
@@ -334,7 +336,11 @@ fun AudiologyView() {
             )
         }
         Spacer(Modifier.height(16.dp))
-        Text("Sesi Dinle!", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Button(onClick = onPlaySound, shape = RoundedCornerShape(18.dp)) {
+            Icon(Icons.Default.VolumeUp, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(label(language, "Sesi dinle", "Listen"), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
@@ -406,6 +412,13 @@ fun localizedInstruction(content: GameContent, language: AppLanguage): String {
         GameType.SAME_OBJECT, GameType.FIND_THE_PAIR -> label(language, "Aynısını bul.", "Find same.")
         else -> label(language, "Seç.", "Pick.")
     }
+}
+
+private fun spokenInstruction(content: GameContent, language: AppLanguage): String {
+    if (content.category == GameCategory.AUDIOLOGY) {
+        return content.instruction ?: label(language, "Sesi dinle.", "Listen.")
+    }
+    return localizedInstruction(content, language)
 }
 
 private fun sizeComparisonInstruction(content: GameContent, language: AppLanguage): String {
