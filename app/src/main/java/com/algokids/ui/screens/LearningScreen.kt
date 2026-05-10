@@ -61,18 +61,10 @@ fun LearningScreen(
     category: GameCategory,
     language: AppLanguage,
     isSoundEnabled: Boolean,
+    tts: TextToSpeech,
+    isTtsReady: Boolean,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
-    var isTtsReady by remember { mutableStateOf(false) }
-    val tts = remember { TextToSpeech(context) { status -> isTtsReady = status == TextToSpeech.SUCCESS } }
-    DisposableEffect(Unit) {
-        onDispose {
-            tts.stop()
-            tts.shutdown()
-        }
-    }
-
     val items = remember(category) {
         if (category == GameCategory.ALPHABET) alphabetItems() else numberItems()
     }

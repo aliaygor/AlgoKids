@@ -74,6 +74,8 @@ fun GameScreen(
     session: GameSessionState,
     language: AppLanguage,
     isSoundEnabled: Boolean,
+    tts: TextToSpeech,
+    isTtsReady: Boolean,
     onToggleSound: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -86,19 +88,9 @@ fun GameScreen(
         items.sortedBy { it.id?.filter { char -> char.isDigit() }?.toIntOrNull() ?: 0 } 
     }
     
-    val context = LocalContext.current
-    var isTtsReady by remember { mutableStateOf(false) }
-    val tts = remember { TextToSpeech(context) { status -> isTtsReady = status == TextToSpeech.SUCCESS } }
-    DisposableEffect(Unit) {
-        onDispose {
-            tts.stop()
-            tts.shutdown()
-        }
-    }
     LaunchedEffect(isTtsReady, language) {
         if (isTtsReady) {
             configureVoice(tts, language)
-            tts.speak(" ", TextToSpeech.QUEUE_FLUSH, null, "warmup")
         }
     }
     session.index = session.index.coerceIn(0, sortedItems.lastIndex)

@@ -80,19 +80,11 @@ private data class AlgorithmLevel(
 fun AlgorithmGameScreen(
     language: AppLanguage,
     isSoundEnabled: Boolean,
+    tts: TextToSpeech,
+    isTtsReady: Boolean,
     onToggleSound: () -> Unit,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
-    var isTtsReady by remember { mutableStateOf(false) }
-    val tts = remember { TextToSpeech(context) { status -> isTtsReady = status == TextToSpeech.SUCCESS } }
-    DisposableEffect(Unit) {
-        onDispose {
-            tts.stop()
-            tts.shutdown()
-        }
-    }
-
     val levels = remember {
         listOf(
             AlgorithmLevel("Roket yıldıza gitsin", "Oklara bas, yolu hazırla.", "🚀", "⭐", "☄️", GridPoint(0, 2), GridPoint(3, 0), setOf(GridPoint(1, 1)), 5, listOf(Move.RIGHT, Move.RIGHT, Move.RIGHT, Move.UP, Move.UP)),

@@ -1,9 +1,12 @@
 package com.algokids
 
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,6 +36,24 @@ class MainActivity : ComponentActivity() {
                 var selectedStory by remember { mutableStateOf<Story?>(null) }
                 var language by rememberSaveable { mutableStateOf(AppLanguage.TR) }
                 var isSoundEnabled by rememberSaveable { mutableStateOf(true) }
+                var isTtsReady by remember { mutableStateOf(false) }
+                val sharedTts = remember {
+                    TextToSpeech(this) { status ->
+                        isTtsReady = status == TextToSpeech.SUCCESS
+                    }
+                }
+                DisposableEffect(Unit) {
+                    onDispose {
+                        sharedTts.stop()
+                        sharedTts.shutdown()
+                    }
+                }
+                LaunchedEffect(isTtsReady, language) {
+                    if (isTtsReady) {
+                        com.algokids.ui.screens.configureVoice(sharedTts, language)
+                        sharedTts.speak(" ", TextToSpeech.QUEUE_FLUSH, null, "app_warmup")
+                    }
+                }
                 val gameSessions = remember { mutableStateMapOf<GameCategory, GameSessionState>() }
 
                 when {
@@ -41,6 +62,8 @@ class MainActivity : ComponentActivity() {
                             story = selectedStory!!,
                             language = language,
                             isSoundEnabled = isSoundEnabled,
+                            tts = sharedTts,
+                            isTtsReady = isTtsReady,
                             onToggleSound = { isSoundEnabled = !isSoundEnabled },
                             onBack = { selectedStory = null }
                         )
@@ -51,6 +74,8 @@ class MainActivity : ComponentActivity() {
                             AlgorithmGameScreen(
                                 language = language,
                                 isSoundEnabled = isSoundEnabled,
+                                tts = sharedTts,
+                                isTtsReady = isTtsReady,
                                 onToggleSound = { isSoundEnabled = !isSoundEnabled },
                                 onBack = { selectedCategory = null }
                             )
@@ -59,6 +84,8 @@ class MainActivity : ComponentActivity() {
                                 category = category,
                                 language = language,
                                 isSoundEnabled = isSoundEnabled,
+                                tts = sharedTts,
+                                isTtsReady = isTtsReady,
                                 onBack = { selectedCategory = null }
                             )
                         } else {
@@ -70,6 +97,8 @@ class MainActivity : ComponentActivity() {
                                 session = gameSessions.getOrPut(category) { GameSessionState() },
                                 language = language,
                                 isSoundEnabled = isSoundEnabled,
+                                tts = sharedTts,
+                                isTtsReady = isTtsReady,
                                 onToggleSound = { isSoundEnabled = !isSoundEnabled },
                                 onBack = { selectedCategory = null }
                             )

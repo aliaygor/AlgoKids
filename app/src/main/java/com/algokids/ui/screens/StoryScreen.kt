@@ -35,16 +35,11 @@ fun StoryScreen(
     story: Story,
     language: AppLanguage,
     isSoundEnabled: Boolean,
+    tts: TextToSpeech,
+    isTtsReady: Boolean,
     onToggleSound: () -> Unit,
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
-    var isTtsReady by remember { mutableStateOf(false) }
-    val tts = remember {
-        TextToSpeech(context) { status ->
-            isTtsReady = status == TextToSpeech.SUCCESS
-        }
-    }
     var currentPage by remember { mutableIntStateOf(0) }
     fun storyLabel(tr: String, en: String) = if (language == AppLanguage.TR) tr else en
     val storyTitle = storyLabel(story.title, story.titleEn)
@@ -67,7 +62,7 @@ fun StoryScreen(
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(tts) {
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
             override fun onError(utteranceId: String?) = Unit
@@ -77,13 +72,12 @@ fun StoryScreen(
         })
         onDispose {
             tts.stop()
-            tts.shutdown()
+            tts.setOnUtteranceProgressListener(null)
         }
     }
     LaunchedEffect(isTtsReady, language) {
         if (isTtsReady) {
             configureStoryVoice()
-            tts.speak(" ", TextToSpeech.QUEUE_FLUSH, null, "story_warmup")
         }
     }
 
