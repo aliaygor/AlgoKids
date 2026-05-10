@@ -3,6 +3,8 @@ package com.algokids.ui.screens
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.animation.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -87,7 +89,8 @@ fun GameScreen(
     }
     
     val context = LocalContext.current
-    val tts = remember { TextToSpeech(context, null) }
+    var isTtsReady by remember { mutableStateOf(false) }
+    val tts = remember { TextToSpeech(context) { status -> isTtsReady = status == TextToSpeech.SUCCESS } }
     DisposableEffect(Unit) {
         onDispose {
             tts.stop()
@@ -129,7 +132,8 @@ fun GameScreen(
         speak(tts, feedback, language, isSoundEnabled)
     }
     
-    LaunchedEffect(currentContent) {
+    LaunchedEffect(currentContent, language, isTtsReady) {
+        if (!isTtsReady) return@LaunchedEffect
         configureVoice(tts, language)
         speak(tts, localizedInstruction(currentContent, language), language, isSoundEnabled)
         
@@ -266,7 +270,7 @@ fun GameScreen(
                 } else {
                     Button(
                         onClick = {
-                            if (session.index < sortedItems.size - 1) session.index++ else onBack()
+                            if (session.index < sortedItems.size - 1) session.index++ else session.restart()
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -275,7 +279,11 @@ fun GameScreen(
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                     ) {
-                        Text(label(language, "İleri", "Next"), fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+                        Text(
+                            if (session.index < sortedItems.size - 1) label(language, "İleri", "Next") else label(language, "Baştan oyna", "Play again"),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
                     }
                 }
             }
@@ -553,10 +561,12 @@ fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, onClick:
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun OptionsGrid(options: List<String>, onSelected: (String) -> Unit) {
-    Row(
+    FlowRow(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         options.forEach { option ->
             Card(
@@ -576,20 +586,19 @@ fun OptionsGrid(options: List<String>, onSelected: (String) -> Unit) {
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 fun PatternGameView(content: GameContent, isCorrect: Boolean) {
-    val scrollState = rememberScrollState()
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(scrollState)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
         val sequence = content.sequence ?: content.questionAssets ?: emptyList()
+        val iconSize = if (sequence.size >= 5) 38.dp else 45.dp
         sequence.forEach { item ->
-            AssetIcon(item, size = 45.dp)
-            Spacer(Modifier.width(12.dp))
+            AssetIcon(item, size = iconSize)
         }
         
         Box(

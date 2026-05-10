@@ -72,7 +72,20 @@ class MainActivity : ComponentActivity() {
                             language = language,
                             onLanguageChange = { language = it },
                             onCategorySelect = { selectedCategory = it },
-                            onStorySelect = { selectedStory = it }
+                            onStorySelect = { selectedStory = it },
+                            performanceSummary = gameSessions.map { (category, session) ->
+                                val name = when (category) {
+                                    GameCategory.VISUAL -> if (language == AppLanguage.TR) "Görsel Algı" else "Visual"
+                                    GameCategory.NUMERICAL -> if (language == AppLanguage.TR) "Sayısal Mantık" else "Numbers"
+                                    GameCategory.LOGIC -> if (language == AppLanguage.TR) "Mantık Yürütme" else "Logic"
+                                    GameCategory.ATTENTION -> if (language == AppLanguage.TR) "Dikkat" else "Attention"
+                                    GameCategory.MEMORY -> if (language == AppLanguage.TR) "Hafıza" else "Memory"
+                                    GameCategory.AUDIOLOGY -> if (language == AppLanguage.TR) "İşitsel" else "Listening"
+                                    GameCategory.GEOMETRY -> if (language == AppLanguage.TR) "Geometri" else "Geometry"
+                                    GameCategory.ALGORITHM -> if (language == AppLanguage.TR) "Algoritma" else "Algorithm"
+                                }
+                                "$name: ${if (language == AppLanguage.TR) "Doğru" else "Right"} ${session.correctCount}, ${if (language == AppLanguage.TR) "Hata" else "Miss"} ${session.mistakeCount}"
+                            }
                         )
                     }
                 }

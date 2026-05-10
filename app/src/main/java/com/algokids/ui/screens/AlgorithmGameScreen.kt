@@ -83,7 +83,8 @@ fun AlgorithmGameScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val tts = remember { TextToSpeech(context, null) }
+    var isTtsReady by remember { mutableStateOf(false) }
+    val tts = remember { TextToSpeech(context) { status -> isTtsReady = status == TextToSpeech.SUCCESS } }
     DisposableEffect(Unit) {
         onDispose {
             tts.stop()
@@ -114,7 +115,7 @@ fun AlgorithmGameScreen(
     val isLevelComplete = robot == level.goal
 
     fun speakShort(text: String) {
-        if (isSoundEnabled) speak(tts, text, language, true)
+        if (isSoundEnabled && isTtsReady) speak(tts, text, language, true)
     }
 
     fun speakLevelGuide(force: Boolean = false) {
@@ -122,9 +123,9 @@ fun AlgorithmGameScreen(
         val guide = label(
             language,
             "${level.title}. Okları diz, başlat.",
-            "${level.title}. Add arrows, then run."
+            "Make a path. Add arrows. Then run."
         )
-        speak(tts, guide, language, true)
+        if (isTtsReady) speak(tts, guide, language, true)
     }
 
     fun resetLevel() {
@@ -200,9 +201,9 @@ fun AlgorithmGameScreen(
                             val guide = label(
                                 language,
                                 "Ses açık. ${level.title}. Okları diz, başlat.",
-                                "Sound on. ${level.title}. Add arrows, then run."
+                                "Sound on. Make a path. Add arrows. Then run."
                             )
-                            speak(tts, guide, language, true)
+                            if (isTtsReady) speak(tts, guide, language, true)
                         }
                     },
                     modifier = Modifier.size(44.dp).background(Color.White, CircleShape)

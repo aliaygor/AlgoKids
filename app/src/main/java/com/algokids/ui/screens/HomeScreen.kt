@@ -36,10 +36,12 @@ fun HomeScreen(
     language: AppLanguage,
     onLanguageChange: (AppLanguage) -> Unit,
     onCategorySelect: (GameCategory) -> Unit,
-    onStorySelect: (Story) -> Unit
+    onStorySelect: (Story) -> Unit,
+    performanceSummary: List<String> = emptyList()
 ) {
     var section by remember { mutableStateOf(HomeSection.GAMES) }
     var showPrivacy by remember { mutableStateOf(false) }
+    var showPerformance by remember { mutableStateOf(false) }
 
     val categories = listOf(
         CategoryItem(label(language, "Görsel Algı", "Visual Skills"), Icons.Default.Visibility, Color(0xFFFF7043), GameCategory.VISUAL),
@@ -296,6 +298,9 @@ fun HomeScreen(
             CenterAlignedTopAppBar(
                 title = { Text("AlgoKids", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp) },
                 actions = {
+                    IconButton(onClick = { showPerformance = true }) {
+                        Icon(Icons.Default.Assessment, contentDescription = null, tint = Color(0xFF1976D2))
+                    }
                     IconButton(onClick = { showPrivacy = true }) {
                         Icon(Icons.Default.PrivacyTip, contentDescription = null, tint = Color(0xFF2E7D32))
                     }
@@ -322,6 +327,26 @@ fun HomeScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = { showPrivacy = false }) {
+                        Text(label(language, "Tamam", "OK"))
+                    }
+                }
+            )
+        }
+        if (showPerformance) {
+            AlertDialog(
+                onDismissRequest = { showPerformance = false },
+                title = { Text(label(language, "Geçmiş", "Progress")) },
+                text = {
+                    Text(
+                        if (performanceSummary.isEmpty()) {
+                            label(language, "Henüz oyun oynanmadı.", "No games played yet.")
+                        } else {
+                            performanceSummary.joinToString("\n")
+                        }
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { showPerformance = false }) {
                         Text(label(language, "Tamam", "OK"))
                     }
                 }
