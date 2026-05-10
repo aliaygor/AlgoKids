@@ -65,10 +65,11 @@ fun LearningScreen(
     isTtsReady: Boolean,
     onBack: () -> Unit
 ) {
-    val items = remember(category) {
-        if (category == GameCategory.ALPHABET) alphabetItems() else numberItems()
+    val items = remember(category, language) {
+        if (category == GameCategory.ALPHABET) alphabetItems(language) else numberItems()
     }
     var index by remember { mutableIntStateOf(0) }
+    if (index > items.lastIndex) index = items.lastIndex
     val item = items[index]
     val title = label(language, item.titleTr, item.titleEn)
     val detail = label(language, item.detailTr, item.detailEn)
@@ -155,17 +156,31 @@ fun LearningScreen(
     }
 }
 
-private fun alphabetItems(): List<LearningItem> {
-    val letters = listOf(
-        "A" to "a", "B" to "be", "C" to "cé", "Ç" to "çe", "D" to "de", "E" to "e",
-        "F" to "fe", "G" to "ge", "Ğ" to "yumuşak ge", "H" to "he", "I" to "ı", "İ" to "i",
-        "J" to "je", "K" to "ke", "L" to "le", "M" to "me", "N" to "ne", "O" to "o",
-        "Ö" to "ö", "P" to "pe", "R" to "re", "S" to "se", "Ş" to "şe", "T" to "te",
-        "U" to "u", "Ü" to "ü", "V" to "ve", "Y" to "ye", "Z" to "ze"
-    ).map { (letter, sound) ->
-        LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: ${sound.replace("é", "e")}", "Sound: $letter", "$sound", letter.lowercase())
+private fun alphabetItems(language: AppLanguage): List<LearningItem> {
+    val letters = if (language == AppLanguage.TR) {
+        listOf(
+            "A" to "a", "B" to "be", "C" to "ce harfi", "Ç" to "çe", "D" to "de", "E" to "e",
+            "F" to "fe", "G" to "ge", "Ğ" to "yumuşak ge", "H" to "he", "I" to "ı", "İ" to "i",
+            "J" to "je", "K" to "ke", "L" to "le", "M" to "me", "N" to "ne", "O" to "o",
+            "Ö" to "ö", "P" to "pe", "R" to "re", "S" to "se", "Ş" to "şe", "T" to "te",
+            "U" to "u", "Ü" to "ü", "V" to "ve", "Y" to "ye", "Z" to "ze"
+        ).map { (letter, sound) ->
+            val detailSound = if (letter == "C") "ce" else sound
+            LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $detailSound", "Sound: $letter", sound, letter.lowercase())
+        }
+    } else {
+        ('A'..'Z').map { char ->
+            val letter = char.toString()
+            LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $letter", "Sound: $letter", letter.lowercase(), letter.lowercase())
+        }
     }
-    val syllables = listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE").map {
+
+    val syllableList = if (language == AppLanguage.TR) {
+        listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE")
+    } else {
+        listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE")
+    }
+    val syllables = syllableList.map {
         LearningItem(it, "$it hecesi", "$it syllable", "Birlikte oku: $it", "Read together: $it", it.lowercase(), it.lowercase())
     }
     return letters + syllables
