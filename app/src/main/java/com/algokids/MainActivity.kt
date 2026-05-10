@@ -17,6 +17,7 @@ import com.algokids.ui.screens.AppLanguage
 import com.algokids.ui.screens.GameScreen
 import com.algokids.ui.screens.GameSessionState
 import com.algokids.ui.screens.HomeScreen
+import com.algokids.ui.screens.LearningScreen
 import com.algokids.ui.screens.StoryScreen
 import com.algokids.ui.theme.AlgoKidsTheme
 
@@ -51,6 +52,13 @@ class MainActivity : ComponentActivity() {
                                 language = language,
                                 isSoundEnabled = isSoundEnabled,
                                 onToggleSound = { isSoundEnabled = !isSoundEnabled },
+                                onBack = { selectedCategory = null }
+                            )
+                        } else if (category == GameCategory.ALPHABET || category == GameCategory.NUMBERS) {
+                            LearningScreen(
+                                category = category,
+                                language = language,
+                                isSoundEnabled = isSoundEnabled,
                                 onBack = { selectedCategory = null }
                             )
                         } else {
