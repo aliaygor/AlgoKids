@@ -163,17 +163,17 @@ private fun alphabetItems(): List<LearningItem> {
         "Ö" to "ö", "P" to "pe", "R" to "re", "S" to "se", "Ş" to "şe", "T" to "te",
         "U" to "u", "Ü" to "ü", "V" to "ve", "Y" to "ye", "Z" to "ze"
     ).map { (letter, sound) ->
-        LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $sound", "Sound: $letter", "$letter. $sound.", "Letter $letter.")
+        LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $sound", "Sound: $letter", "$sound", "letter $letter")
     }
     val syllables = listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE").map {
-        LearningItem(it, "$it hecesi", "$it syllable", "Birlikte oku: $it", "Read together: $it", "$it.", "$it.")
+        LearningItem(it, "$it hecesi", "$it syllable", "Birlikte oku: $it", "Read together: $it", it.lowercase(), it.lowercase())
     }
     return letters + syllables
 }
 
 private fun numberItems(): List<LearningItem> = (1..100).map { number ->
     val tr = numberToTurkish(number)
-    LearningItem(number.toString(), "$number sayısı", "Number $number", "Okunuşu: $tr", "Count: $number", "$number. $tr.", "Number $number.")
+    LearningItem(number.toString(), "$number sayısı", "Number $number", "Okunuşu: $tr", "Count: $number", tr, numberToEnglish(number))
 }
 
 private fun numberToTurkish(number: Int): String {
@@ -184,4 +184,18 @@ private fun numberToTurkish(number: Int): String {
     val ten = number / 10
     val one = number % 10
     return listOf(tens[ten], ones[one]).filter { it.isNotBlank() }.joinToString(" ")
+}
+
+private fun numberToEnglish(number: Int): String {
+    val small = listOf(
+        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+        "seventeen", "eighteen", "nineteen"
+    )
+    val tens = listOf("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
+    if (number == 100) return "one hundred"
+    if (number < 20) return small[number]
+    val ten = number / 10
+    val one = number % 10
+    return listOf(tens[ten], small[one]).filter { it.isNotBlank() }.joinToString(" ")
 }
