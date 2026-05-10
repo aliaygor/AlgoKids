@@ -157,13 +157,13 @@ fun LearningScreen(
 
 private fun alphabetItems(): List<LearningItem> {
     val letters = listOf(
-        "A" to "a", "B" to "be", "C" to "ce", "Ç" to "çe", "D" to "de", "E" to "e",
+        "A" to "a", "B" to "be", "C" to "cé", "Ç" to "çe", "D" to "de", "E" to "e",
         "F" to "fe", "G" to "ge", "Ğ" to "yumuşak ge", "H" to "he", "I" to "ı", "İ" to "i",
         "J" to "je", "K" to "ke", "L" to "le", "M" to "me", "N" to "ne", "O" to "o",
         "Ö" to "ö", "P" to "pe", "R" to "re", "S" to "se", "Ş" to "şe", "T" to "te",
         "U" to "u", "Ü" to "ü", "V" to "ve", "Y" to "ye", "Z" to "ze"
     ).map { (letter, sound) ->
-        LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $sound", "Sound: $letter", "$sound", "letter $letter")
+        LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: ${sound.replace("é", "e")}", "Sound: $letter", "$sound", letter.lowercase())
     }
     val syllables = listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE").map {
         LearningItem(it, "$it hecesi", "$it syllable", "Birlikte oku: $it", "Read together: $it", it.lowercase(), it.lowercase())
