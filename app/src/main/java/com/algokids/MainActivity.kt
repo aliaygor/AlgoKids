@@ -82,6 +82,8 @@ class MainActivity : ComponentActivity() {
                                     GameCategory.MEMORY -> if (language == AppLanguage.TR) "Hafıza" else "Memory"
                                     GameCategory.AUDIOLOGY -> if (language == AppLanguage.TR) "İşitsel" else "Listening"
                                     GameCategory.GEOMETRY -> if (language == AppLanguage.TR) "Geometri" else "Geometry"
+                                    GameCategory.ALPHABET -> if (language == AppLanguage.TR) "Alfabe" else "Alphabet"
+                                    GameCategory.NUMBERS -> if (language == AppLanguage.TR) "Sayılar" else "Numbers"
                                     GameCategory.ALGORITHM -> if (language == AppLanguage.TR) "Algoritma" else "Algorithm"
                                 }
                                 "$name: ${if (language == AppLanguage.TR) "Doğru" else "Right"} ${session.correctCount}, ${if (language == AppLanguage.TR) "Hata" else "Miss"} ${session.mistakeCount}"

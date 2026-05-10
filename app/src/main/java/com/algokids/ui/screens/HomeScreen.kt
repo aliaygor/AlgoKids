@@ -60,7 +60,9 @@ fun HomeScreen(
         CategoryItem(label(language, "Algoritma", "Algorithm"), Icons.Default.AccountTree, Color(0xFF26C6DA), GameCategory.ALGORITHM),
         CategoryItem(label(language, "Hafıza Gücü", "Memory"), Icons.Default.Memory, Color(0xFFAB47BC), GameCategory.MEMORY),
         CategoryItem(label(language, "İşitsel Algı", "Listening"), Icons.Default.VolumeUp, Color(0xFF26A69A), GameCategory.AUDIOLOGY),
-        CategoryItem(label(language, "Geometri", "Geometry"), Icons.Default.Category, Color(0xFF5C6BC0), GameCategory.GEOMETRY)
+        CategoryItem(label(language, "Geometri", "Geometry"), Icons.Default.Category, Color(0xFF5C6BC0), GameCategory.GEOMETRY),
+        CategoryItem(label(language, "Alfabe", "Alphabet"), Icons.Default.Abc, Color(0xFFEC407A), GameCategory.ALPHABET),
+        CategoryItem(label(language, "Sayılar", "Numbers"), Icons.Default.Pin, Color(0xFF7E57C2), GameCategory.NUMBERS)
     )
 
     val sampleStories = listOf(

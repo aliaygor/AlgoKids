@@ -19,5 +19,7 @@ enum class GameCategory {
     MEMORY,      // Hafıza
     AUDIOLOGY,   // İşitsel Algı
     GEOMETRY,    // Geometri/Şekil
+    ALPHABET,    // Harf öğrenme
+    NUMBERS,     // Sayı öğrenme
     ALGORITHM    // Algoritmik düşünme
 }

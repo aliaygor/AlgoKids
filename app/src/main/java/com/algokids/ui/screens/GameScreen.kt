@@ -919,6 +919,6 @@ fun AssetIcon(name: String, size: Dp = 50.dp, isShadow: Boolean = false) {
             } else Modifier
         )
     } else {
-        Text(text = name, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(text = name, fontSize = (size.value * 0.72f).sp, fontWeight = FontWeight.Black)
     }
 }

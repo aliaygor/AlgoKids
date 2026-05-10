@@ -1,6 +1,7 @@
 package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -27,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.algokids.game.model.Story
-import kotlinx.coroutines.delay
 import java.util.Locale
 
 @Composable
@@ -49,6 +49,7 @@ fun StoryScreen(
     fun storyLabel(tr: String, en: String) = if (language == AppLanguage.TR) tr else en
     val storyTitle = storyLabel(story.title, story.titleEn)
     val storyPages = if (language == AppLanguage.TR) story.pages else story.pagesEn
+    var completedUtterance by remember { mutableStateOf<String?>(null) }
     fun configureStoryVoice() {
         tts.language = language.locale
         tts.setSpeechRate(if (language == AppLanguage.TR) 0.78f else 0.84f)
@@ -67,6 +68,13 @@ fun StoryScreen(
     }
 
     DisposableEffect(Unit) {
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) = Unit
+            override fun onError(utteranceId: String?) = Unit
+            override fun onDone(utteranceId: String?) {
+                completedUtterance = utteranceId
+            }
+        })
         onDispose {
             tts.stop()
             tts.shutdown()
@@ -82,17 +90,23 @@ fun StoryScreen(
     LaunchedEffect(story.id, currentPage, language, isSoundEnabled, isTtsReady) {
         if (isSoundEnabled && isTtsReady) {
             configureStoryVoice()
+            val utteranceId = "story_${story.id}_$currentPage"
+            completedUtterance = null
             tts.speak(
                 storyPages[currentPage],
                 TextToSpeech.QUEUE_FLUSH,
                 null,
-                "story_${story.id}_$currentPage"
+                utteranceId
             )
-            val autoDelay = (storyPages[currentPage].length * 75L).coerceIn(2200L, 9000L)
-            delay(autoDelay)
-            if (currentPage < storyPages.size - 1) currentPage++
         } else if (!isSoundEnabled) {
             tts.stop()
+        }
+    }
+
+    LaunchedEffect(completedUtterance) {
+        val utterance = completedUtterance ?: return@LaunchedEffect
+        if (utterance == "story_${story.id}_$currentPage" && currentPage < storyPages.size - 1) {
+            currentPage++
         }
     }
 
