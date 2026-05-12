@@ -5,6 +5,7 @@ package com.algokids.ui.screens
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -25,8 +26,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.algokids.game.model.GameCategory
 import com.algokids.game.model.Story
 
@@ -324,52 +327,66 @@ fun HomeScreen(
         }
     ) { padding ->
         if (showPrivacy) {
-            AlertDialog(
-                onDismissRequest = { showPrivacy = false },
-                title = { Text(label(language, "Gizlilik", "Privacy")) },
-                text = {
-                    Text(
-                        label(
-                            language,
-                            "AlgoKids hesap istemez, reklam göstermez, internet kullanmaz. Kamera, mikrofon, konum ve kişi bilgisi istemez. Oyun ilerlemesi sadece cihaz içinde tutulur.",
-                            "AlgoKids does not require accounts, show ads, or use internet. It does not request camera, microphone, location, or contacts. Game progress stays on the device."
-                        )
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { showPrivacy = false }) {
-                        Text(label(language, "Tamam", "OK"))
-                    }
-                }
-            )
+            HomeInfoDialog(
+                title = label(language, "Gizlilik", "Privacy"),
+                icon = Icons.Default.PrivacyTip,
+                accent = Color(0xFF2E7D32),
+                onDismiss = { showPrivacy = false },
+                actionText = label(language, "Tamam", "OK")
+            ) {
+                Text(
+                    text = label(
+                        language,
+                        "AlgoKids hesap istemez, reklam göstermez, internet kullanmaz. Kamera, mikrofon, konum ve kişi bilgisi istemez. Oyun ilerlemesi sadece cihaz içinde tutulur.",
+                        "AlgoKids does not require accounts, show ads, or use internet. It does not request camera, microphone, location, or contacts. Game progress stays on the device."
+                    ),
+                    color = Color(0xFF455A64),
+                    fontSize = 16.sp,
+                    lineHeight = 23.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
         if (showPerformance) {
-            AlertDialog(
-                onDismissRequest = { showPerformance = false },
-                title = { Text(label(language, "Oyun Geçmişi", "Progress")) },
-                text = {
-                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        if (performanceSummary.isEmpty()) {
-                            Text(label(language, "Henüz oyun oynanmadı.", "No games played yet."))
-                        } else {
-                            performanceSummary.forEach { item ->
-                                Surface(
-                                    color = Color(0xFFE8F5E9),
-                                    shape = RoundedCornerShape(14.dp),
-                                    modifier = Modifier.fillMaxWidth()
+            HomeInfoDialog(
+                title = label(language, "Oyun Geçmişi", "Progress"),
+                icon = Icons.Default.Assessment,
+                accent = Color(0xFF1976D2),
+                onDismiss = { showPerformance = false },
+                actionText = label(language, "Tamam", "OK")
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    if (performanceSummary.isEmpty()) {
+                        Text(
+                            label(language, "Henüz oyun oynanmadı.", "No games played yet."),
+                            color = Color(0xFF546E7A),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        performanceSummary.forEach { item ->
+                            Surface(
+                                color = Color.White,
+                                shape = RoundedCornerShape(18.dp),
+                                modifier = Modifier.fillMaxWidth(),
+                                shadowElevation = 2.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(item, modifier = Modifier.padding(12.dp), fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+                                    Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF4CAF50), modifier = Modifier.size(22.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                    Text(item, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32), fontSize = 15.sp)
                                 }
                             }
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showPerformance = false }) {
-                        Text(label(language, "Tamam", "OK"))
-                    }
                 }
-            )
+            }
         }
         if (showExitConfirm) {
             AlertDialog(
@@ -459,6 +476,61 @@ fun HomeScreen(
                             StoryCard(story, language) { onStorySelect(story) }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeInfoDialog(
+    title: String,
+    icon: ImageVector,
+    accent: Color,
+    onDismiss: () -> Unit,
+    actionText: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = Color.Transparent,
+            tonalElevation = 0.dp,
+            shadowElevation = 16.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color(0xFFF1F8E9), Color(0xFFE3F2FD))
+                        ),
+                        RoundedCornerShape(28.dp)
+                    )
+                    .border(2.dp, Color.White.copy(alpha = 0.85f), RoundedCornerShape(28.dp))
+                    .padding(22.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(Color.White, RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(36.dp))
+                }
+                Spacer(Modifier.height(12.dp))
+                Text(title, color = Color(0xFF2E7D32), fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center)
+                Spacer(Modifier.height(16.dp))
+                content()
+                Spacer(Modifier.height(20.dp))
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
+                ) {
+                    Text(actionText, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
                 }
             }
         }

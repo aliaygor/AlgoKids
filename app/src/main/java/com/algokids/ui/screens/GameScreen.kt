@@ -68,6 +68,35 @@ class GameSessionState {
     }
 }
 
+private fun contentOrder(content: GameContent): Int =
+    content.id?.filter { it.isDigit() }?.toIntOrNull() ?: 0
+
+private fun difficultyScore(content: GameContent): Int {
+    val optionCount = content.options.orEmpty().size
+    val assetCount = content.questionAssets.orEmpty().size
+    val sequenceCount = content.sequence.orEmpty().size
+    val base = when (content.type) {
+        GameType.SAME_OBJECT -> 0
+        GameType.COUNTING -> 10 + assetCount
+        GameType.PATTERN -> 20 + sequenceCount
+        GameType.WHAT_IS_NEXT -> 24 + sequenceCount
+        GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> 30 + assetCount
+        GameType.SHADOW_MATCH -> 34
+        GameType.SIZE_COMPARISON -> 38 + assetCount
+        GameType.SEQUENCE_LOGIC -> 42 + sequenceCount + assetCount
+        GameType.MATCHING -> 48 + optionCount + assetCount
+        GameType.FUNCTIONAL_MATCH -> 56 + optionCount + assetCount
+        else -> 70 + optionCount + assetCount + sequenceCount
+    }
+    return base * 100 + contentOrder(content)
+}
+
+private fun memoryRevealDurationMillis(index: Int, totalCount: Int): Long {
+    if (totalCount <= 1) return 3000L
+    val progress = index.toFloat() / (totalCount - 1).coerceAtLeast(1)
+    return (3000L - (2500L * progress)).toLong().coerceIn(500L, 3000L)
+}
+
 @Composable
 fun GameScreen(
     items: List<GameContent>,
@@ -84,8 +113,8 @@ fun GameScreen(
         return
     }
 
-    val sortedItems = remember(items) { 
-        items.sortedBy { it.id?.filter { char -> char.isDigit() }?.toIntOrNull() ?: 0 } 
+    val sortedItems = remember(items) {
+        items.sortedWith(compareBy<GameContent> { difficultyScore(it) }.thenBy { contentOrder(it) })
     }
     
     LaunchedEffect(isTtsReady, language) {
@@ -135,7 +164,7 @@ fun GameScreen(
         
         if (currentContent.category == GameCategory.MEMORY) {
             isHidden = false
-            delay(2500) 
+            delay(memoryRevealDurationMillis(session.index, sortedItems.size))
             isHidden = true
         }
     }
@@ -208,7 +237,7 @@ fun GameScreen(
                         content.category == GameCategory.AUDIOLOGY -> AudiologyView(language) {
                             speak(tts, spokenInstruction(content, language), language, isSoundEnabled)
                         }
-                        content.category == GameCategory.MEMORY -> MemoryView(content, isHidden)
+                        content.category == GameCategory.MEMORY -> MemoryView(content, isHidden, language)
                         content.type == GameType.PATTERN || content.type == GameType.WHAT_IS_NEXT || content.type == GameType.SEQUENCE_LOGIC -> PatternGameView(content, isCorrect)
                         content.type == GameType.COUNTING -> CountingGameView(content)
                         content.type == GameType.SHADOW_MATCH -> ShadowGameView(content)
@@ -290,10 +319,10 @@ fun GameScreen(
 }
 
 @Composable
-fun MemoryView(content: GameContent, isHidden: Boolean) {
+fun MemoryView(content: GameContent, isHidden: Boolean, language: AppLanguage) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            if (isHidden) "Nesne hangisiydi?" else "Dikkatle bak!",
+            if (isHidden) label(language, "Nesne hangisiydi?", "Which object was it?") else label(language, "Dikkatle bak!", "Look carefully!"),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = if (isHidden) Color(0xFF42A5F5) else Color(0xFFFF7043)
@@ -790,6 +819,7 @@ fun AssetIcon(name: String, size: Dp = 50.dp, isShadow: Boolean = false) {
         "FLOWER", "ÇIÇEK" -> "🌸"
         "APPLE", "ELMA" -> "🍎"
         "TREE", "AĞAÇ" -> "🌳"
+        "LEAF", "YAPRAK" -> "🍃"
         "BONE", "KEMIK" -> "🦴"
         "NEST", "YUVA" -> "🪺"
         "CAR", "ARABA" -> "🚗"
@@ -808,6 +838,12 @@ fun AssetIcon(name: String, size: Dp = 50.dp, isShadow: Boolean = false) {
         "NAIL", "ÇIVI" -> "📍"
         "CARROT", "HAVUÇ" -> "🥕"
         "RABBIT", "TAVŞAN" -> "🐰"
+        "MOON", "AY" -> "🌙"
+        "PEAR", "ARMUT" -> "🍐"
+        "BOX", "KUTU" -> "📦"
+        "HIPPO", "SU AYGIRI" -> "🦛"
+        "RHINO", "GERGEDAN" -> "🦏"
+        "CHIMP", "ŞEMPANZE" -> "🐵"
         "BUTTERFLY", "KELEBEK" -> "🦋"
         "DUCK", "ÖRDEK" -> "🦆"
         "ANT", "KARINCA" -> "🐜"
@@ -884,6 +920,8 @@ fun AssetIcon(name: String, size: Dp = 50.dp, isShadow: Boolean = false) {
         "LEFT" -> "⬅️"
         "UP" -> "⬆️"
         "DOWN" -> "⬇️"
+        "SMALL", "KÜÇÜK" -> "🔹"
+        "BIG", "BÜYÜK" -> "🔷"
         else -> null
     }
 
