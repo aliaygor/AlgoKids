@@ -2,7 +2,8 @@ package com.algokids.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -13,144 +14,34 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.algokids.ui.screens.AppLanguage
+import com.algokids.ui.screens.label
 
 @Composable
 fun GameScene(
-    title: String,
-    instruction: String,
-    progress: Float = 0.5f,
-    scoreText: String = "",
-    onBack: () -> Unit,
-    onExit: () -> Unit = {},
-    isSoundEnabled: Boolean = true,
-    onToggleSound: () -> Unit = {},
+    title: String, instruction: String, progress: Float = 0.5f, scoreText: String = "",
+    onBack: () -> Unit, onExit: () -> Unit = {}, isSoundEnabled: Boolean = true,
+    onToggleSound: () -> Unit = {}, language: AppLanguage = AppLanguage.TR,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFFE1F5FE), Color(0xFFE8F5E9))))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // 🔝 Üst Panel (HUD)
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, start = 16.dp, end = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Geri Butonu (Önceki Soru)
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color.White, CircleShape)
-                        .shadow(2.dp, CircleShape)
-                ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color(0xFF5D4037))
-                }
-
-                // Bitir/Çık Butonu (Ana Menü)
-                IconButton(
-                    onClick = onExit,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(Color(0xFFFFEBEE), CircleShape)
-                        .shadow(2.dp, CircleShape)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = null, tint = Color(0xFFD32F2F))
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(16.dp)
-                        .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(progress)
-                            .fillMaxHeight()
-                            .background(
-                                Brush.horizontalGradient(listOf(Color(0xFF4CAF50), Color(0xFF8BC34A))),
-                                RoundedCornerShape(8.dp)
-                            )
-                    )
-                }
-
-                // Ses Kapatma/Açma Butonu
-                IconButton(
-                    onClick = onToggleSound,
-                    modifier = Modifier
-                        .size(44.dp)
-                        .background(if (isSoundEnabled) Color.White else Color(0xFFEEEEEE), CircleShape)
-                        .shadow(2.dp, CircleShape)
-                ) {
-                    Icon(
-                        imageVector = if (isSoundEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                        contentDescription = null,
-                        tint = if (isSoundEnabled) Color(0xFF1976D2) else Color.Gray
-                    )
-                }
+    BoxWithConstraints(Modifier.fillMaxSize().background(Color(0xFFF4F6FC)).safeDrawingPadding(),contentAlignment=Alignment.TopCenter) {
+        val sceneHeight = maxOf(maxHeight, 640.dp)
+        Column(Modifier.widthIn(max=760.dp).fillMaxWidth().verticalScroll(rememberScrollState()).height(sceneHeight).padding(16.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                IconButton(onClick=onBack) { Icon(Icons.Default.ArrowBack,label(language,"Önceki soru","Previous question")) }
+                LinearProgressIndicator(progress={progress.coerceIn(0f,1f)},modifier=Modifier.weight(1f),color=Color(0xFF308263),trackColor=Color(0xFFDFE7F2))
+                IconButton(onClick=onToggleSound) { Icon(if(isSoundEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff,label(language,if(isSoundEnabled) "Sesi kapat" else "Sesi aç",if(isSoundEnabled) "Mute" else "Sound on")) }
+                IconButton(onClick=onExit) { Icon(Icons.Default.Close,label(language,"Atölyelere dön","Back to workshops")) }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF2E7D32)
-            )
-
-            if (scoreText.isNotBlank()) {
-                Text(
-                    text = scoreText,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1976D2)
-                )
-            }
-            
-            Text(
-                text = instruction,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color(0xFF5D4037),
-                modifier = Modifier.padding(horizontal = 32.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // 🧩 Oyun Kartı
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .weight(1f)
-                    .padding(bottom = 32.dp)
-                    .shadow(12.dp, RoundedCornerShape(32.dp)),
-                shape = RoundedCornerShape(32.dp),
-                color = Color.White.copy(alpha = 0.95f) // Hafif transparanlık
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    content()
-                }
+            Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold,color=Color(0xFF172B4D),textAlign=TextAlign.Center)
+            if(scoreText.isNotBlank()) Text(scoreText,style=MaterialTheme.typography.labelLarge,color=Color(0xFF516078))
+            Text(instruction,style=MaterialTheme.typography.bodyLarge,color=Color(0xFF334155),textAlign=TextAlign.Center)
+            Surface(Modifier.fillMaxWidth().weight(1f),shape=RoundedCornerShape(24.dp),color=Color.White,tonalElevation=1.dp) {
+                Column(Modifier.padding(12.dp),horizontalAlignment=Alignment.CenterHorizontally) { content() }
             }
         }
     }

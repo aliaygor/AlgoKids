@@ -1,0 +1,226 @@
+﻿id,category,type,instruction,answer,status,decision
+v1,VISUAL,MATCHING,Aynı olanları eşleştir!,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v2,VISUAL,FUNCTIONAL_MATCH,Bu nesneler neyle kullanılır?,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v3,VISUAL,SIZE_COMPARISON,En büyük olanı bul.,elephant,RETIRED_FROM_UI,Ekran ikon boyu ile gerçek hayattaki boy birbirine karışıyor.
+v4,VISUAL,SHADOW_MATCH,Gölgesini bulabilir misin?,butterfly,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v5,VISUAL,SAME_OBJECT,Bunun aynısını bul!,penguin,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+v6,VISUAL,MATCHING,Renkli topları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v7,VISUAL,FUNCTIONAL_MATCH,Kim nerede yaşar?,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v8,VISUAL,SIZE_COMPARISON,En küçük olanı bul.,ant,RETIRED_FROM_UI,Ekran ikon boyu ile gerçek hayattaki boy birbirine karışıyor.
+v9,VISUAL,SHADOW_MATCH,Bu gölge kime ait?,lion,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v10,VISUAL,SAME_OBJECT,Aynı meyveyi bul.,apple,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+v11,VISUAL,MATCHING,Hayvanları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v12,VISUAL,FUNCTIONAL_MATCH,Hangisi hangisinindir?,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v13,VISUAL,SIZE_COMPARISON,En uzun olanı bul.,giraffe,RETIRED_FROM_UI,Ekran ikon boyu ile gerçek hayattaki boy birbirine karışıyor.
+v14,VISUAL,SHADOW_MATCH,Gölgeyi eşleştir.,elephant,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v15,VISUAL,SAME_OBJECT,Aynısını seç.,star,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+v16,VISUAL,MATCHING,Eşlerini bul.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v17,VISUAL,FUNCTIONAL_MATCH,Bunları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v18,VISUAL,WHICH_IS_DIFFERENT,Meyve olmayanı bul.,ant,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+v19,VISUAL,SHADOW_MATCH,Kim bu?,cat,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v20,VISUAL,SAME_OBJECT,Aynısını bul bakalım.,car,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+n1,NUMERICAL,COUNTING,Kaç elma var?,2,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n2,NUMERICAL,COUNTING,Yıldızları say!,3,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n3,NUMERICAL,COUNTING,Kaç kuş uçuyor?,4,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n4,NUMERICAL,COUNTING,Topları sayalım.,5,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n5,NUMERICAL,COUNTING,Kaç kedi var?,1,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n6,NUMERICAL,COUNTING,Muzları say!,6,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n7,NUMERICAL,COUNTING,Kaç çiçek var?,7,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n8,NUMERICAL,COUNTING,Kaç arı var?,8,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n9,NUMERICAL,COUNTING,Balıkları say!,9,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n10,NUMERICAL,COUNTING,Kaç kırmızı daire var?,10,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+n11,NUMERICAL,COUNTING,Kaç köpek var?,2,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n12,NUMERICAL,COUNTING,Kaç araba var?,3,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n13,NUMERICAL,COUNTING,Kaç şemsiye var?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n14,NUMERICAL,COUNTING,Kaç güneş var?,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n15,NUMERICAL,COUNTING,Kaç kelebek var?,6,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n16,NUMERICAL,COUNTING,Kaç karınca var?,7,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n17,NUMERICAL,COUNTING,Kaç aslan var?,8,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n18,NUMERICAL,COUNTING,Kaç ördek var?,9,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n19,NUMERICAL,COUNTING,Kaç penguen var?,10,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n20,NUMERICAL,COUNTING,Kaç zil var?,3,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı. n20/n21 aynı içerik tekrarını içeriyor.
+l1,LOGIC,PATTERN,İkili tekrar eden renk grubunu tamamla.,BLUE,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+l2,LOGIC,PATTERN,Üçlü grup aynı sırayla tekrarlanıyor. Sıradakini bul.,RED,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+l3,LOGIC,PATTERN,Meyve örüntüsünü tamamla.,banana,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l4,LOGIC,PATTERN,Sıradaki ne?,ball,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l5,LOGIC,PATTERN,Örüntüyü devam ettir.,dog,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l6,LOGIC,PATTERN,Sıradaki hayvan hangisi?,fish,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l7,LOGIC,PATTERN,Örüntüyü tamamla.,GREEN,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l8,LOGIC,PATTERN,Sıradaki renk ne?,ORANGE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l9,LOGIC,PATTERN,Örüntüyü bul.,elephant,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l10,LOGIC,PATTERN,Sıradaki meyveyi bul.,apple,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l11,LOGIC,PATTERN,Üç farklı renk aynı sırayla tekrarlanıyor. Sıradakini bul.,GREEN,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+l12,LOGIC,PATTERN,Meyve sırasını tamamla.,orange,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l13,LOGIC,PATTERN,Hayvan sırasını tamamla.,bird,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l14,LOGIC,PATTERN,Suda ve havada sırasını bul.,bird,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l15,LOGIC,PATTERN,Renk yolunu tamamla.,RED,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l16,LOGIC,PATTERN,Sıradaki renk hangisi?,ORANGE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l17,LOGIC,PATTERN,Örüntüyü bul.,elephant,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l18,LOGIC,PATTERN,Sıradaki ne?,apple,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l19,LOGIC,PATTERN,Örüntüyü tamamla.,BLUE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l20,LOGIC,PATTERN,Sıradaki ne olmalı?,ball,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+a1,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı bul.,banana,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a2,ATTENTION,WHICH_IS_DIFFERENT,Rengi farklı olanı bul.,YELLOW,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a3,ATTENTION,WHICH_IS_DIFFERENT,Hayvanlardan hangisi farklı?,dog,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a4,ATTENTION,WHICH_IS_DIFFERENT,Farklı olan meyveyi seç.,apple,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a5,ATTENTION,WHICH_IS_DIFFERENT,Hangisi gruba ait değil?,fish,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a6,ATTENTION,WHICH_IS_DIFFERENT,Farklı rengi bul.,RED,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a7,ATTENTION,WHICH_IS_DIFFERENT,Hangisi farklı?,elephant,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a8,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı seç.,ball,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a9,ATTENTION,WHICH_IS_DIFFERENT,Rengi farklı olan ne?,ORANGE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a10,ATTENTION,WHICH_IS_DIFFERENT,Farklı hayvanı bul.,duck,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a11,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı bul.,orange,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a12,ATTENTION,WHICH_IS_DIFFERENT,Rengi farklı olanı seç.,BLUE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a13,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı bul.,cat,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a14,ATTENTION,WHICH_IS_DIFFERENT,Hangisi farklı?,banana,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a15,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı seç.,bird,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a16,ATTENTION,WHICH_IS_DIFFERENT,Rengi farklı olanı bul.,GREEN,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a17,ATTENTION,WHICH_IS_DIFFERENT,Hangisi farklı?,lion,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a18,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı bul.,star,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a19,ATTENTION,WHICH_IS_DIFFERENT,Rengi farklı olanı seç.,PURPLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a20,ATTENTION,WHICH_IS_DIFFERENT,Farklı olanı bul.,penguin,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+m1,MEMORY,SAME_OBJECT,Bunun aynısı hangisiydi?,apple,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m2,MEMORY,SAME_OBJECT,Hatırlıyor musun? Hangisi bu?,cat,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m3,MEMORY,SAME_OBJECT,Gördüğün nesneyi seç.,car,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m4,MEMORY,SAME_OBJECT,Hangi hayvanı gördün?,lion,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m5,MEMORY,SAME_OBJECT,Az önce hangisi vardı?,star,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m6,MEMORY,SAME_OBJECT,Aynı rengi bul.,RED,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m7,MEMORY,SAME_OBJECT,Nesneyi hatırla.,hammer,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m8,MEMORY,SAME_OBJECT,Hangi meyveydi?,banana,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m9,MEMORY,SAME_OBJECT,Şekli bul.,ball,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m10,MEMORY,SAME_OBJECT,Hayvanı hatırla.,elephant,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m11,MEMORY,SAME_OBJECT,Bunun aynısını seç.,bird,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m12,MEMORY,SAME_OBJECT,Rengi hatırla.,BLUE,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m13,MEMORY,SAME_OBJECT,Nesne hangisiydi?,umbrella,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m14,MEMORY,SAME_OBJECT,Meyveyi bul.,orange,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m15,MEMORY,SAME_OBJECT,Aracı hatırla.,bus,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m16,MEMORY,SAME_OBJECT,Hayvanı seç.,monkey,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m17,MEMORY,SAME_OBJECT,Hangi çiçekti?,flower,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m18,MEMORY,SAME_OBJECT,Rengi bul.,GREEN,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m19,MEMORY,SAME_OBJECT,Eşyayı hatırla.,pencil,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m20,MEMORY,SAME_OBJECT,Son olarak hangisi vardı?,fish,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+au1,AUDIOLOGY,SAME_OBJECT,Hav hav! Hangi hayvan?,dog,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au2,AUDIOLOGY,SAME_OBJECT,Miyav! Kim bu?,cat,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au3,AUDIOLOGY,SAME_OBJECT,Möö! Hangisi?,cow,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au4,AUDIOLOGY,SAME_OBJECT,Cik cik! Kim ötüyor?,bird,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au5,AUDIOLOGY,SAME_OBJECT,Gıt gıt gıdak! Kim yumurtlar?,chicken,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au6,AUDIOLOGY,SAME_OBJECT,Vırak vırak! Kim bu?,frog,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au7,AUDIOLOGY,SAME_OBJECT,Bip bip! Hangi araç?,car,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au8,AUDIOLOGY,SAME_OBJECT,Düt düt! Büyük araç hangisi?,bus,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au9,AUDIOLOGY,SAME_OBJECT,Fıs fıs! Kim o?,snake,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au10,AUDIOLOGY,SAME_OBJECT,Vız vız! Kim uçuyor?,bee,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au11,AUDIOLOGY,SAME_OBJECT,Vak vak! Kim yüzüyor?,duck,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au12,AUDIOLOGY,SAME_OBJECT,Auuu! Kim uluyor?,wolf,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au13,AUDIOLOGY,SAME_OBJECT,Tık tık! Ne çalıyor?,hammer,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au14,AUDIOLOGY,SAME_OBJECT,Şırıl şırıl! Ne akıyor?,rain,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au15,AUDIOLOGY,SAME_OBJECT,Çuf çuf! Ne geliyor?,train,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au16,AUDIOLOGY,SAME_OBJECT,Aslan kükrerse ne der?,lion,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au17,AUDIOLOGY,SAME_OBJECT,At kişnerse hangisi?,horse,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au18,AUDIOLOGY,SAME_OBJECT,Araba fren sesi?,car,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au19,AUDIOLOGY,SAME_OBJECT,Telefon sesi?,phone,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au20,AUDIOLOGY,SAME_OBJECT,Gülme sesi!,child,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+g1,GEOMETRY,COUNTING,Kaç tane üçgen var?,3,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g2,GEOMETRY,WHICH_IS_DIFFERENT,Köşesi olmayan şekli bul.,CIRCLE,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+g3,GEOMETRY,PATTERN,"Kenar sayısına göre örüntüyü tamamla: 3 kenar, 4 kenar, 3 kenar...",SQUARE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+g4,GEOMETRY,WHICH_IS_DIFFERENT,Dört kenarı da eşit olan şekli bul.,SQUARE,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+g5,GEOMETRY,COUNTING,Kaç tane daire görüyorsun?,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g6,GEOMETRY,MATCHING,Şekilleri kenar sayılarına göre eşleştir (Örn: Üçgen -> 3),MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+g7,GEOMETRY,WHICH_IS_DIFFERENT,Hangi şeklin kenar sayısı en azdır?,TRIANGLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g8,GEOMETRY,WHICH_IS_DIFFERENT,Hangisi bir 'dörtgen' değildir?,TRIANGLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g9,GEOMETRY,PATTERN,Sırayı 10 kenarlı şekille tamamla.,STAR_SHAPE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+g10,GEOMETRY,COUNTING,Yıldızın kaç ucu vardır? Say ve seç.,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g11,GEOMETRY,WHICH_IS_DIFFERENT,Eğri çizgilerden oluşan şekli bul.,CIRCLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g12,GEOMETRY,WHICH_IS_DIFFERENT,"İki uzun, iki kısa kenarı olan şekli bul.",RECTANGLE,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+g13,GEOMETRY,COUNTING,Bir karenin kaç köşesi vardır?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g14,GEOMETRY,WHICH_IS_DIFFERENT,Hangisi köşeli bir şekil değildir?,CIRCLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g15,GEOMETRY,MATCHING,Aynı şekilleri bul ve eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+g16,GEOMETRY,WHICH_IS_DIFFERENT,En çok köşesi olan şekil hangisi?,STAR_SHAPE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g17,GEOMETRY,WHICH_IS_DIFFERENT,Hangisi yuvarlanabilir?,CIRCLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g18,GEOMETRY,COUNTING,Kaç tane dikdörtgen var?,2,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g19,GEOMETRY,WHICH_IS_DIFFERENT,Üç köşesi olan şekli seç.,TRIANGLE,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+g20,GEOMETRY,COUNTING,Kaç tane yıldız görüyorsun?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+v21,VISUAL,FUNCTIONAL_MATCH,Hayvanları sevdikleri yiyeceklerle eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v22,VISUAL,MATCHING,Aynı araçları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v23,VISUAL,SHADOW_MATCH,Gölgenin hangi meyveye ait olduğunu bul.,banana,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v24,VISUAL,SAME_OBJECT,Aynı eşyayı seç.,pencil,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+v25,VISUAL,SIZE_COMPARISON,En küçük hayvanı bul.,ant,RETIRED_FROM_UI,Ekran ikon boyu ile gerçek hayattaki boy birbirine karışıyor.
+n21,NUMERICAL,COUNTING,Kaç çan var?,3,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı. n20/n21 aynı içerik tekrarını içeriyor.
+n22,NUMERICAL,COUNTING,Kaç tren var?,2,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n23,NUMERICAL,COUNTING,Kaç güneş gözlüğü var?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n24,NUMERICAL,COUNTING,Kaç kalem var?,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n25,NUMERICAL,COUNTING,Kaç tavşan zıplıyor?,6,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+l21,LOGIC,PATTERN,Ulaşım örüntüsünü tamamla.,car,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l22,LOGIC,PATTERN,Hayvan sırasını tamamla.,carrot,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l23,LOGIC,PATTERN,Renk örüntüsünde sıradaki rengi seç.,BLUE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l24,LOGIC,PATTERN,Nesne örüntüsünü devam ettir.,brush,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l25,LOGIC,PATTERN,Sıradaki hayvanı bul.,duck,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+a21,ATTENTION,WHICH_IS_DIFFERENT,Farklı aracı bul.,bus,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a22,ATTENTION,WHICH_IS_DIFFERENT,Farklı eşyayı seç.,paper,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a23,ATTENTION,WHICH_IS_DIFFERENT,Suda yaşayan farklı hayvanı bul.,duck,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar. Ördek/balık sorusunun ölçütü yeterince açık değil.
+a24,ATTENTION,WHICH_IS_DIFFERENT,Farklı şekli bul.,HEART,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a25,ATTENTION,WHICH_IS_DIFFERENT,Farklı rengi seç.,BROWN,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+m21,MEMORY,SAME_OBJECT,Biraz önce hangi araç vardı?,train,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m22,MEMORY,SAME_OBJECT,Hangi nesneyi gördün?,brush,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m23,MEMORY,SAME_OBJECT,Hangi hayvan aklında kaldı?,frog,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m24,MEMORY,SAME_OBJECT,Hangi renk saklandı?,PINK,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m25,MEMORY,SAME_OBJECT,Son gördüğün şekli seç.,HEART,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+au21,AUDIOLOGY,SAME_OBJECT,Zil çalıyor! Hangi nesne?,bell,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au22,AUDIOLOGY,SAME_OBJECT,Tik tak! Hangi eşya ses çıkarır?,clock,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au23,AUDIOLOGY,SAME_OBJECT,Uçak sesi duyuluyor. Hangisi?,plane,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au24,AUDIOLOGY,SAME_OBJECT,Kapı tıklıyor. Hangisini seçmelisin?,door,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au25,AUDIOLOGY,SAME_OBJECT,Su sesi geliyor. Hangi nesne olabilir?,tap,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+g21,GEOMETRY,COUNTING,Kaç tane kalp var?,3,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g22,GEOMETRY,PATTERN,Şekil örüntüsünü tamamla.,HEART,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+g23,GEOMETRY,WHICH_IS_DIFFERENT,Hangisinin köşesi yoktur?,CIRCLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g24,GEOMETRY,MATCHING,Şekilleri aynı olanlarla eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+g25,GEOMETRY,COUNTING,Kaç tane kare görüyorsun?,6,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+v26,VISUAL,MATCHING,Eşleri bul.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+v27,VISUAL,FUNCTIONAL_MATCH,Birlikte olanları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Gerçek dünya ilişkisi; kimi çiftler tek cevaba indirgenemez. Yeni katman oyununa yer açıldı.
+v28,VISUAL,SAME_OBJECT,Aynısını bul.,plane,RETIRED_FROM_UI,Görünen nesnenin aynısını seçme; başka kategorilerde de tekrar.
+v29,VISUAL,SHADOW_MATCH,Gölgeyi bul.,duck,ACTIVE_FOUNDATION,Temel atölyenin düzey çeşidi; bağımsız yeni oyun olarak sunulmuyor.
+v30,VISUAL,SIZE_COMPARISON,En büyük olanı seç.,giraffe,RETIRED_FROM_UI,Ekran ikon boyu ile gerçek hayattaki boy birbirine karışıyor.
+n26,NUMERICAL,COUNTING,Kaç top var?,7,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n27,NUMERICAL,COUNTING,Kaç çiçek var?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n28,NUMERICAL,COUNTING,Kaç balık var?,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n29,NUMERICAL,COUNTING,Kaç araba var?,4,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+n30,NUMERICAL,COUNTING,Kaç yıldız var?,6,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+l26,LOGIC,PATTERN,Sıradakini bul.,bell,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l27,LOGIC,PATTERN,Sıradakini bul.,snake,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l28,LOGIC,PATTERN,Sıradakini bul.,STAR_SHAPE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l29,LOGIC,PATTERN,Sıradakini bul.,bus,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+l30,LOGIC,PATTERN,Sıradakini bul.,BROWN,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+a26,ATTENTION,WHICH_IS_DIFFERENT,Farklıyı bul.,bell,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a27,ATTENTION,WHICH_IS_DIFFERENT,Farklıyı bul.,sheep,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a28,ATTENTION,WHICH_IS_DIFFERENT,Farklıyı bul.,train,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a29,ATTENTION,WHICH_IS_DIFFERENT,Farklıyı bul.,CIRCLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+a30,ATTENTION,WHICH_IS_DIFFERENT,Farklıyı bul.,carrot,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+m26,MEMORY,SAME_OBJECT,Aynısını bul.,bell,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m27,MEMORY,SAME_OBJECT,Aynısını bul.,plane,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m28,MEMORY,SAME_OBJECT,Aynısını bul.,cow,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m29,MEMORY,SAME_OBJECT,Aynısını bul.,clock,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+m30,MEMORY,SAME_OBJECT,Aynısını bul.,door,RETIRED_FROM_UI,Tek nesneyi hatırlama varyantı; gizlenen konum ve ters sıra oyunlarıyla değişti.
+au26,AUDIOLOGY,SAME_OBJECT,Meee! Hangisi?,sheep,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au27,AUDIOLOGY,SAME_OBJECT,Ding dong! Hangisi?,bell,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au28,AUDIOLOGY,SAME_OBJECT,Şıp şıp! Hangisi?,tap,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au29,AUDIOLOGY,SAME_OBJECT,Çıt çıt! Hangisi?,door,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+au30,AUDIOLOGY,SAME_OBJECT,Düdüüüt! Hangisi?,train,RETIRED_FROM_UI,Yazılı ses ipucu gerçek ses ayırt etmeyi sınamıyor; dinlenen yönerge/anlam oyunlarıyla değişti.
+g26,GEOMETRY,PATTERN,Sıradakini bul.,CIRCLE,RETIRED_FROM_UI,Periyodik örüntü; yeni oyun değil düzey çeşidi.
+g27,GEOMETRY,COUNTING,Kaç üçgen var?,5,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+g28,GEOMETRY,WHICH_IS_DIFFERENT,Farklıyı bul.,RECTANGLE,RETIRED_FROM_UI,Tek farklı nesneyi seçme; dikkat kategorisiyle tekrar.
+g29,GEOMETRY,MATCHING,Eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Aynı nesneyi eşleme; görsel kopya bulma ile tekrar.
+g30,GEOMETRY,COUNTING,Kaç daire var?,7,RETIRED_FROM_UI,Aynı sayma mekaniğinin resim çeşidi; tek temel atölye altında 1–10 bırakıldı.
+al1,ALGORITHM,PATTERN,Sıradaki adımı bul.,paper,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al2,ALGORITHM,SEQUENCE_LOGIC,Önce hangisi gelir?,brush,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al3,ALGORITHM,WHAT_IS_NEXT,Döngüyü tamamla.,train,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al4,ALGORITHM,FUNCTIONAL_MATCH,Neden-sonuç eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al5,ALGORITHM,PATTERN,Tekrar eden yolu bul.,UP,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al6,ALGORITHM,WHICH_IS_DIFFERENT,Kurala uymayanı bul.,car,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al7,ALGORITHM,COUNTING,Kaç adım var?,4,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al8,ALGORITHM,MATCHING,Aynı komutları eşleştir.,MATCH_ALL,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al9,ALGORITHM,WHAT_IS_NEXT,Sıra devam etsin.,phone,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al10,ALGORITHM,FUNCTIONAL_MATCH,Kullanım çiftlerini bul.,MATCH_ALL,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al11,ALGORITHM,PATTERN,Komut örüntüsünü tamamla.,RIGHT,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al12,ALGORITHM,WHICH_IS_DIFFERENT,Aynı grupta olmayanı bul.,banana,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al13,ALGORITHM,COUNTING,Kaç kez sağa gidilir?,3,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al14,ALGORITHM,PATTERN,Şartlı sırayı tamamla.,sunglasses,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.
+al15,ALGORITHM,MATCHING,Aynı adımları bul.,MATCH_ALL,RETIRED_FROM_UI,Eski resimli seçim algoritma yürütme gerektirmiyor; 10 rotalı gerçek komut oyunu kullanılıyor.

@@ -1,0 +1,50 @@
+[
+  {
+    "file": "EN_0.wav",
+    "seconds": 3.33,
+    "sample_rate": 24000,
+    "samples": 79800,
+    "peak": 13304,
+    "nonzero_samples": 49570
+  },
+  {
+    "file": "EN_1.wav",
+    "seconds": 6.26,
+    "sample_rate": 24000,
+    "samples": 150240,
+    "peak": 18954,
+    "nonzero_samples": 111646
+  },
+  {
+    "file": "EN_2.wav",
+    "seconds": 9.51,
+    "sample_rate": 24000,
+    "samples": 228120,
+    "peak": 21072,
+    "nonzero_samples": 194892
+  },
+  {
+    "file": "TR_0.wav",
+    "seconds": 3.75,
+    "sample_rate": 24000,
+    "samples": 90000,
+    "peak": 21335,
+    "nonzero_samples": 61097
+  },
+  {
+    "file": "TR_1.wav",
+    "seconds": 5.79,
+    "sample_rate": 24000,
+    "samples": 138960,
+    "peak": 23166,
+    "nonzero_samples": 101121
+  },
+  {
+    "file": "TR_2.wav",
+    "seconds": 10.78,
+    "sample_rate": 24000,
+    "samples": 258600,
+    "peak": 20807,
+    "nonzero_samples": 236657
+  }
+]

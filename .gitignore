@@ -16,3 +16,7 @@ local.properties
 *.jks
 play-store-ready/
 app/src/main/assets/adi-registration.properties
+
+/.kotlin/
+
+ads.properties

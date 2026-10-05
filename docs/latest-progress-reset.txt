@@ -1,0 +1,8 @@
+
+com.algokids.ProgressResetTest:.
+
+Time: 18.635
+
+OK (1 test)
+
+

@@ -1,0 +1,8 @@
+TR: ready=true voice=tr-TR-language
+TR_0: 180044 bytes
+TR_1: 277964 bytes
+TR_2: 517244 bytes
+EN: ready=true voice=en-us-x-tpf-local
+EN_0: 159644 bytes
+EN_1: 300524 bytes
+EN_2: 456284 bytes

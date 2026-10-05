@@ -23,7 +23,8 @@ class ContentRepository(private val context: Context) {
     }
 
     fun getContentByCategory(category: GameCategory): List<GameContent> {
-        return loadAllContent().filter { it.category == category }
+        val byId = loadAllContent().associateBy { it.id }
+        return Curriculum.foundationIds(category).mapNotNull { byId[it] }
     }
 
     fun loadPatternContent(): List<GameContent> {

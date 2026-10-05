@@ -1,603 +1,164 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.algokids.ui.screens
 
 import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import com.algokids.game.model.GameCategory
-import com.algokids.game.model.Story
-
-private enum class HomeSection {
-    GAMES, STORIES
-}
+import com.algokids.game.model.*
 
 @Composable
 fun HomeScreen(
-    language: AppLanguage,
-    onLanguageChange: (AppLanguage) -> Unit,
-    onCategorySelect: (GameCategory) -> Unit,
-    onStorySelect: (Story) -> Unit,
-    performanceSummary: List<String> = emptyList()
+    language: AppLanguage, onLanguageChange: (AppLanguage) -> Unit,
+    onCategorySelect: (GameCategory) -> Unit, onStorySelect: (Story) -> Unit,
+    performanceSummary: List<String> = emptyList(), onChallengeSelect: (Challenge) -> Unit = {},
+    onParentSettings: () -> Unit = {}, onDailyMission: () -> Unit = {}, storiesVisible: Boolean = false, onStoriesVisibleChange: (Boolean) -> Unit = {},
+    progressRevision:Int=0,onResetProgress:()->Unit={},onAppearance:()->Unit={}
 ) {
-    var section by remember { mutableStateOf(HomeSection.GAMES) }
     var showPrivacy by remember { mutableStateOf(false) }
     var showPerformance by remember { mutableStateOf(false) }
-    var showExitConfirm by remember { mutableStateOf(false) }
-    val activity = LocalContext.current as? Activity
-
-    BackHandler {
-        if (section == HomeSection.STORIES) section = HomeSection.GAMES else showExitConfirm = true
-    }
-
+    var showExit by remember { mutableStateOf(false) }
+    var showReset by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val prefs = context.getSharedPreferences("algokids_progress",Context.MODE_PRIVATE)
+    val recent = remember(progressRevision) { runCatching { GameCategory.valueOf(prefs.getString("recent_category", "") ?: "") }.getOrNull() }
+    BackHandler { if(storiesVisible) onStoriesVisibleChange(false) else showExit=true }
     val categories = listOf(
-        CategoryItem(label(language, "Görsel Algı", "Visual Skills"), Icons.Default.Visibility, Color(0xFFFF7043), GameCategory.VISUAL),
-        CategoryItem(label(language, "Sayısal Mantık", "Numbers"), Icons.Default.Calculate, Color(0xFF42A5F5), GameCategory.NUMERICAL),
-        CategoryItem(label(language, "Dikkat & Odak", "Attention"), Icons.Default.Psychology, Color(0xFF66BB6A), GameCategory.ATTENTION),
-        CategoryItem(label(language, "Mantık Yürütme", "Logic"), Icons.Default.Lightbulb, Color(0xFFFFA726), GameCategory.LOGIC),
-        CategoryItem(label(language, "Algoritma", "Algorithm"), Icons.Default.AccountTree, Color(0xFF26C6DA), GameCategory.ALGORITHM),
-        CategoryItem(label(language, "Hafıza Gücü", "Memory"), Icons.Default.Memory, Color(0xFFAB47BC), GameCategory.MEMORY),
-        CategoryItem(label(language, "İşitsel Algı", "Listening"), Icons.Default.VolumeUp, Color(0xFF26A69A), GameCategory.AUDIOLOGY),
-        CategoryItem(label(language, "Geometri", "Geometry"), Icons.Default.Category, Color(0xFF5C6BC0), GameCategory.GEOMETRY),
-        CategoryItem(label(language, "Alfabe", "Alphabet"), Icons.Default.Abc, Color(0xFFEC407A), GameCategory.ALPHABET),
-        CategoryItem(label(language, "Sayılar", "Numbers"), Icons.Default.Pin, Color(0xFF7E57C2), GameCategory.NUMBERS)
-    )
+        CategoryItem(categoryTitle(GameCategory.ALGORITHM,language),Icons.Default.AccountTree,Color(0xFF277D86),GameCategory.ALGORITHM),
+        CategoryItem(categoryTitle(GameCategory.LOGIC,language),Icons.Default.Lightbulb,Color(0xFFB97919),GameCategory.LOGIC),
+        CategoryItem(categoryTitle(GameCategory.NUMERICAL,language),Icons.Default.Calculate,Color(0xFF3D68B5),GameCategory.NUMERICAL),
+        CategoryItem(categoryTitle(GameCategory.ATTENTION,language),Icons.Default.Psychology,Color(0xFF308263),GameCategory.ATTENTION),
+        CategoryItem(categoryTitle(GameCategory.MEMORY,language),Icons.Default.Memory,Color(0xFF8256A3),GameCategory.MEMORY),
+        CategoryItem(categoryTitle(GameCategory.VISUAL,language),Icons.Default.Visibility,Color(0xFFC76A48),GameCategory.VISUAL),
+        CategoryItem(categoryTitle(GameCategory.AUDIOLOGY,language),Icons.Default.VolumeUp,Color(0xFF277D86),GameCategory.AUDIOLOGY),
+        CategoryItem(categoryTitle(GameCategory.GEOMETRY,language),Icons.Default.Category,Color(0xFF5765A8),GameCategory.GEOMETRY),
+        CategoryItem(categoryTitle(GameCategory.ALPHABET,language),Icons.Default.Abc,Color(0xFFB34D79),GameCategory.ALPHABET),
+        CategoryItem(categoryTitle(GameCategory.NUMBERS,language),Icons.Default.Pin,Color(0xFF7657A3),GameCategory.NUMBERS)
+    ).sortedBy { com.algokids.data.LearningPath.order.indexOf(it.type) }
+    val sampleStories = com.algokids.data.StoryCatalog.ordered(language==AppLanguage.EN)
 
-    val sampleStories = listOf(
-        Story(
-            id = "s1",
-            title = "Küçük Karınca",
-            titleEn = "Little Ant",
-            content = "",
-            pages = listOf(
-                "Bir zamanlar çok çalışkan küçük bir karınca varmış.",
-                "Karınca bütün gün yuvasına yemek taşırmış.",
-                "Bir gün yolda büyük bir ekmek kırıntısı bulmuş.",
-                "Kırıntı o kadar büyükmüş ki, karınca onu tek başına taşıyamamış.",
-                "Hemen arkadaşlarını çağırmış ve hep beraber kırıntıyı yuvaya götürmüşler.",
-                "Yuvaya vardıklarında herkes sırayla dinlenmiş.",
-                "Küçük karınca arkadaşlarına teşekkür etmiş.",
-                "O günden sonra büyük işleri hep birlikte yapmışlar.",
-                "Birlikten kuvvet doğarmış!"
-            ),
-            pagesEn = listOf(
-                "Once there was a tiny ant who worked very hard.",
-                "All day, the ant carried food to her home.",
-                "One day she found a big crumb of bread.",
-                "The crumb was too big to carry alone.",
-                "She called her friends, and together they carried it home.",
-                "When they arrived, everyone took a little rest.",
-                "The tiny ant thanked her friends.",
-                "After that day, they did big jobs together.",
-                "Working together makes us strong!"
-            ),
-            pageImages = listOf("🐜", "🍎", "🍞", "😰", "🐜🐜🐜", "🏠", "😊", "💪", "💪")
-        ),
-        Story(
-            id = "s2",
-            title = "Cesur Tavşan",
-            titleEn = "Brave Bunny",
-            content = "",
-            pages = listOf(
-                "Ormanın derinliklerinde Cesur adında minik bir tavşan yaşarmış.",
-                "Cesur, diğer tavşanların aksine yeni yerler keşfetmeyi çok severmiş.",
-                "Bir sabah gökkuşağının bittiği yeri bulmaya karar vermiş.",
-                "Dereyi geçmiş, tepeleri tırmanmış ve rengarenk bir çiçek bahçesine varmış.",
-                "Bahçede kaybolmamak için yoluna küçük taşlar bırakmış.",
-                "Akşam olunca taşları takip ederek evine dönmüş.",
-                "Orada yeni arkadaşlar edinmiş ve ertesi gün onları yuvasına çağırmış.",
-                "Cesur, keşfetmenin güzel olduğunu ama dikkatli olmanın da önemli olduğunu öğrenmiş."
-            ),
-            pagesEn = listOf(
-                "Deep in the forest lived a little bunny named Brave.",
-                "Brave loved to discover new places.",
-                "One morning he decided to find where the rainbow ended.",
-                "He crossed a stream, climbed hills, and found a colorful flower garden.",
-                "He dropped little stones so he would not get lost.",
-                "In the evening, he followed the stones back home.",
-                "He met new friends and invited them to his burrow.",
-                "Brave learned that exploring is fun, and being careful matters too."
-            ),
-            pageImages = listOf("🐰", "🧭", "🌈", "🌸", "🪨", "🏠", "🦊🐻🐰", "😊")
-        ),
-        Story(
-            id = "s3",
-            title = "Uzay Yolculuğu",
-            titleEn = "Space Trip",
-            content = "",
-            pages = listOf(
-                "Ali, bir gece rüyasında dev bir rokete bindiğini gördü.",
-                "Roket büyük bir gürültüyle gökyüzüne fırladı.",
-                "Pencereden baktığında Dünya'nın küçüldüğünü gördü.",
-                "Ay'a indiğinde orada zıplayan komik uzaylılarla karşılaştı.",
-                "Uzaylılar ona yıldız tozu hediye ettiler.",
-                "Ali yıldızları saydı ve en parlak olanı seçti.",
-                "Roket eve dönerken Dünya yavaş yavaş büyüdü.",
-                "Ali uyandığında yastığının altında gümüş bir parıltı vardı.",
-                "O parıltı ona rüyasını hatırlattı."
-            ),
-            pagesEn = listOf(
-                "One night, Ali dreamed he climbed into a giant rocket.",
-                "The rocket flew into the sky with a loud whoosh.",
-                "From the window, Earth looked smaller and smaller.",
-                "On the Moon, he met funny jumping aliens.",
-                "The aliens gave him a little star dust.",
-                "Ali counted the stars and chose the brightest one.",
-                "As the rocket came home, Earth grew bigger again.",
-                "When Ali woke up, a silver sparkle was under his pillow.",
-                "The sparkle reminded him of his dream."
-            ),
-            pageImages = listOf("🚀", "🔥", "🌍", "👽", "✨", "⭐", "🌍", "🛌", "✨")
-        ),
-        Story(
-            id = "s4",
-            title = "Kayıp Renkler",
-            titleEn = "The Lost Colors",
-            content = "",
-            pages = listOf(
-                "Elif'in boya kutusunda bir sabah bütün renkler birbirine karışmıştı.",
-                "Önce kırmızıyı elmaya, sarıyı güneşe, maviyi gökyüzüne ayırdı.",
-                "Sonra renkleri sıraya dizip küçük bir gökkuşağı yaptı.",
-                "Renkler doğru yerlerine dönünce resim defteri yeniden parladı.",
-                "Elif her rengin kendi yerinde daha güzel göründüğünü öğrendi."
-            ),
-            pagesEn = listOf(
-                "One morning, all the colors in Elif's paint box were mixed up.",
-                "She put red with the apple, yellow with the sun, and blue with the sky.",
-                "Then she lined the colors up and made a small rainbow.",
-                "When every color found its place, her notebook shined again.",
-                "Elif learned that each color looks lovely in the right place."
-            ),
-            pageImages = listOf("🎨", "🍎☀️🌌", "🌈", "📒", "😊")
-        ),
-        Story(
-            id = "s5",
-            title = "Robotun Planı",
-            titleEn = "Robot's Plan",
-            content = "",
-            pages = listOf(
-                "Mert küçük robotuna odasını toplamayı öğretmek istedi.",
-                "Önce oyuncakları kutuya, kitapları rafa koyma kuralı yazdı.",
-                "Robot bazen şaşırdı ama Mert adımları tek tek düzeltti.",
-                "Sonunda robot sırayı öğrendi ve oda pırıl pırıl oldu.",
-                "Mert iyi bir planın işleri kolaylaştırdığını fark etti."
-            ),
-            pagesEn = listOf(
-                "Mert wanted to teach his little robot to tidy the room.",
-                "First he wrote a rule: toys go in the box, books go on the shelf.",
-                "The robot got confused sometimes, but Mert fixed the steps one by one.",
-                "At last, the robot learned the order and the room became shiny clean.",
-                "Mert saw that a good plan makes work easier."
-            ),
-            pageImages = listOf("🤖", "🧸📚", "🛠️", "✨", "🧠")
-        ),
-        Story(
-            id = "s6",
-            title = "Deniz Feneri",
-            titleEn = "The Lighthouse",
-            content = "",
-            pages = listOf(
-                "Minik kaptan Ada sisli bir akşam denizde yolunu arıyordu.",
-                "Uzakta yanıp sönen deniz fenerini gördü.",
-                "Işığı takip ederek kayalıklardan güvenle uzaklaştı.",
-                "Limana vardığında fener bekçisine teşekkür etti.",
-                "Ada, dikkatli bakmanın bazen en iyi pusula olduğunu öğrendi."
-            ),
-            pagesEn = listOf(
-                "Little captain Ada was looking for her way on a foggy evening.",
-                "Far away, she saw the lighthouse blinking.",
-                "She followed the light and stayed safely away from the rocks.",
-                "When she reached the harbor, she thanked the lighthouse keeper.",
-                "Ada learned that looking carefully can be the best compass."
-            ),
-            pageImages = listOf("⛵", "💡", "🌊", "🏠", "🧭")
-        ),
-        Story(
-            id = "s7",
-            title = "Minik Mimar",
-            titleEn = "Little Builder",
-            content = "",
-            pages = listOf(
-                "Zeynep bloklarıyla sağlam bir köprü yapmak istiyordu.",
-                "Önce iki büyük küpü yan yana koydu.",
-                "Üstlerine uzun bir dikdörtgen yerleştirdi.",
-                "Köprü sallanınca altına bir destek daha ekledi.",
-                "Arabası köprüden geçince planının işe yaradığını gördü."
-            ),
-            pagesEn = listOf(
-                "Zeynep wanted to build a strong bridge with her blocks.",
-                "First she placed two big cubes side by side.",
-                "Then she put a long rectangle on top.",
-                "When the bridge wobbled, she added one more support.",
-                "When her car crossed the bridge, she saw her plan worked."
-            ),
-            pageImages = listOf("🏗️", "🎲🎲", "▭", "🧱", "🚗")
-        ),
-        Story(
-            id = "s8",
-            title = "Sessiz Kütüphane",
-            titleEn = "Quiet Library",
-            content = "",
-            pages = listOf(
-                "Can kütüphanede en sevdiği kitabı arıyordu.",
-                "Raflardaki renkleri takip etti: kırmızı, mavi, kırmızı, mavi.",
-                "Sıradaki rafın mavi olması gerektiğini fark etti.",
-                "Mavi rafta aradığı kitabı buldu.",
-                "Örüntüleri görmek Can'ın işini kolaylaştırmıştı."
-            ),
-            pagesEn = listOf(
-                "Can was looking for his favorite book in the library.",
-                "He followed the shelf colors: red, blue, red, blue.",
-                "He noticed the next shelf should be blue.",
-                "On the blue shelf, he found the book he wanted.",
-                "Seeing the pattern made Can's job easier."
-            ),
-            pageImages = listOf("📚", "🔴🔵", "🔵", "📖", "😊")
-        ),
-        Story(
-            id = "s9",
-            title = "Yağmurdan Sonra",
-            titleEn = "After the Rain",
-            content = "",
-            pages = listOf(
-                "Yağmur durunca Ece bahçeye çıktı.",
-                "Toprakta küçük ayak izleri gördü.",
-                "İzleri takip edince bir salyangozun yaprağa tırmandığını fark etti.",
-                "Ece yaprağı yolun kenarına taşıdı.",
-                "Küçük canlılara dikkat etmek bahçeyi daha güvenli yaptı."
-            ),
-            pagesEn = listOf(
-                "When the rain stopped, Ece went into the garden.",
-                "She saw tiny footprints in the soil.",
-                "She followed them and found a snail climbing a leaf.",
-                "Ece moved the leaf to the side of the path.",
-                "Taking care of little creatures made the garden safer."
-            ),
-            pageImages = listOf("🌧️", "👣", "🍃", "🤲", "🌱")
-        ),
-        Story(
-            id = "s10",
-            title = "Kaybolan Melodi",
-            titleEn = "The Missing Melody",
-            content = "",
-            pages = listOf(
-                "Ada'nın müzik kutusu bir sabah aynı melodiyi çalmıyordu.",
-                "Önce zil sesini, sonra kuş sesini, en son tren sesini dinledi.",
-                "Sesleri doğru sıraya koyunca melodi geri geldi.",
-                "Ada her sesi dikkatle dinlediğinde daha iyi hatırladığını anladı.",
-                "Müzik kutusu yeniden neşeli neşeli çalmaya başladı."
-            ),
-            pagesEn = listOf(
-                "Ada's music box did not play the same melody one morning.",
-                "First she heard a bell, then a bird, and last a train.",
-                "When she put the sounds in the right order, the melody came back.",
-                "Ada learned that listening carefully helps her remember.",
-                "The music box played happily again."
-            ),
-            pageImages = listOf("🎵", "🔔🐦🚂", "🎼", "👂", "🎶")
-        )
-    )
-    val displayedStories = when (section) {
-        HomeSection.STORIES -> sampleStories
-        HomeSection.GAMES -> emptyList()
+    LazyVerticalGrid(columns=GridCells.Adaptive(156.dp),modifier=Modifier.fillMaxSize().background(Color(0xFFF4F6FC)).safeDrawingPadding(),contentPadding=PaddingValues(20.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+        item(span={GridItemSpan(maxLineSpan)}) {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("AlgoKids",fontWeight=FontWeight.ExtraBold,fontSize=28.sp,color=Color(0xFF172B4D))
+                    Text(label(language,"Küçük adımlar, güçlü düşünceler","Small steps, thoughtful minds"),style=MaterialTheme.typography.bodySmall,color=Color(0xFF516078))
+                }
+                IconButton(onClick={showPerformance=true}) { Icon(Icons.Default.Assessment,label(language,"Gelişim özeti","Progress"),tint=Color(0xFF3D68B5)) }
+                IconButton(onClick=onParentSettings) { Icon(Icons.Default.PrivacyTip,label(language,"Ebeveyn bilgisi","Parent information"),tint=Color(0xFF308263)) }
+            }
+        }
+        item(span={GridItemSpan(maxLineSpan)}) {
+            Card(shape=RoundedCornerShape(26.dp),colors=CardDefaults.cardColors(containerColor=if(prefs.getString("cosmetic_theme","ocean")=="sunset") Color(0xFF703C47) else Color(0xFF172B4D))) {
+                Column(Modifier.fillMaxWidth().padding(24.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                    Text(label(language,"BUGÜNÜN DÜŞÜNME GÖREVİ","TODAY’S THINKING MISSION"),color=Color(0xFFA8DDD4),style=MaterialTheme.typography.labelMedium)
+                    Text(label(language,"Yaşına uygun günlük keşif","A daily discovery for your age"),fontWeight=FontWeight.Bold,fontSize=26.sp,color=Color.White)
+                    Text(label(language,"Seviye ${com.algokids.data.LearningPath.level(prefs,language.name)} · ${prefs.getInt("bonus_points",0)} keşif puanı","Level ${com.algokids.data.LearningPath.level(prefs,language.name)} · ${prefs.getInt("bonus_points",0)} discovery points"),color=Color(0xFFDEE6F5),style=MaterialTheme.typography.bodyLarge)
+                    Button(onClick=onDailyMission,colors=ButtonDefaults.buttonColors(containerColor=Color(0xFFA8DDD4),contentColor=Color(0xFF172B4D)),shape=RoundedCornerShape(14.dp),modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) { Text(label(language,"Günlük meydan okuma","Daily challenge"),fontWeight=FontWeight.Bold) }
+                }
+            }
+        }
+        if(recent!=null && com.algokids.data.LearningPath.unlocked(prefs,recent,language.name)) item(span={GridItemSpan(maxLineSpan)}) {
+            OutlinedButton(onClick={onCategorySelect(recent)},modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(16.dp)) { Text(label(language,"Devam et: ","Continue: ")+categoryTitle(recent,language)) }
+        }
+        item(span={GridItemSpan(maxLineSpan)}) {
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected=!storiesVisible,onClick={onStoriesVisibleChange(false)},label={Text(label(language,"Atölyeler","Workshops"))})
+                FilterChip(selected=storiesVisible,onClick={onStoriesVisibleChange(true)},label={Text(label(language,"Hikâyeler","Stories"))})
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick={onLanguageChange(if(language==AppLanguage.TR) AppLanguage.EN else AppLanguage.TR)}) { Text(if(language==AppLanguage.TR) "TR / EN" else "EN / TR") }
+            }
+        }
+        item(span={GridItemSpan(maxLineSpan)}) {
+            Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                if(!storiesVisible) OutlinedButton(onClick={showReset=true},modifier=Modifier.testTag("reset_learning")) { Text(label(language,"Sıfırla","Reset progress")) }
+                Text(if(storiesVisible) label(language,"Kısadan uzuna hikâyeler","Stories from short to long") else label(language,"Hangi becerini çalıştıralım?","What shall we practise?"),fontWeight=FontWeight.Bold,style=MaterialTheme.typography.titleLarge)
+                Text(if(storiesVisible) label(language,"Her sayfada yeni bir adım. Sesli anlatımı tekrar dinleyebilirsin.","A new step on every page. Replay the narration whenever you like.") else label(language,"Kategorilerin içinde farklı çözüm yolları olan düşünme atölyeleri var.","Explore thinking workshops with different solution processes in each category."),color=Color(0xFF516078),style=MaterialTheme.typography.bodyMedium)
+            }
+        }
+        if(storiesVisible) items(sampleStories,key={it.id},span={GridItemSpan(maxLineSpan)}) { story ->
+            Card(onClick={onStorySelect(story)},shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=Color.White)) {
+                Row(Modifier.fillMaxWidth().padding(20.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(16.dp)) {
+                    Icon(Icons.Default.AutoStories,null,tint=Color(0xFF3D68B5))
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                        Text(label(language,story.title,story.titleEn),fontWeight=FontWeight.Bold)
+                        val minutes=com.algokids.data.StoryCatalog.minutes(story,language==AppLanguage.EN)
+                        Text(label(language,"Yaklaşık $minutes dk · ${story.pages.size} sayfa","About $minutes min · ${story.pagesEn.size} pages"),style=MaterialTheme.typography.bodySmall)
+                    }
+                    Icon(Icons.Default.ChevronRight,null)
+                }
+            }
+        } else items(categories,key={it.type}) { category ->
+            val unlocked=com.algokids.data.LearningPath.unlocked(prefs,category.type,language.name)
+            val completed=com.algokids.data.LearningPath.completed(prefs,category.type,language.name)
+            Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                val number=com.algokids.data.LearningPath.order.indexOf(category.type)+1
+                Text(label(language,"Set $number · ${if(!unlocked) "Kilitli" else if(completed) "Tamamlandı" else "Açık"}","Set $number · ${if(!unlocked) "Locked" else if(completed) "Completed" else "Unlocked"}"),style=MaterialTheme.typography.labelLarge)
+                CategoryCard(category,language,unlocked) { onCategorySelect(category.type) }
+                Text(if(unlocked) label(language,"Başarı: ${com.algokids.data.LearningPath.score(prefs,category.type,language.name)}/100","Score: ${com.algokids.data.LearningPath.score(prefs,category.type,language.name)}/100") else label(language,"Önce önceki eğitim setini tamamla.","Complete the preceding learning set first."),style=MaterialTheme.typography.bodySmall)
+            }
+        }
+        item(span={GridItemSpan(maxLineSpan)}) {TextButton(onClick=onAppearance,modifier=Modifier.testTag("appearance_options")) {Text(label(language,"Görünüm seçenekleri","Appearance"))}}
+        item(span={GridItemSpan(maxLineSpan)}) { Text(label(language,"Önce planla → Dene → Sonucu gözle → Çözümünü geliştir","Plan → Try → Observe → Improve"),color=Color(0xFF516078),modifier=Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodySmall) }
     }
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("AlgoKids", fontWeight = FontWeight.ExtraBold, fontSize = 28.sp) },
-                actions = {
-                    IconButton(onClick = { showPerformance = true }) {
-                        Icon(Icons.Default.Assessment, contentDescription = null, tint = Color(0xFF1976D2))
-                    }
-                    IconButton(onClick = { showPrivacy = true }) {
-                        Icon(Icons.Default.PrivacyTip, contentDescription = null, tint = Color(0xFF2E7D32))
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = Color(0xFF2E7D32)
-                )
-            )
-        }
-    ) { padding ->
-        if (showPrivacy) {
-            HomeInfoDialog(
-                title = label(language, "Gizlilik", "Privacy"),
-                icon = Icons.Default.PrivacyTip,
-                accent = Color(0xFF2E7D32),
-                onDismiss = { showPrivacy = false },
-                actionText = label(language, "Tamam", "OK")
-            ) {
-                Text(
-                    text = label(
-                        language,
-                        "AlgoKids hesap istemez, reklam göstermez, internet kullanmaz. Kamera, mikrofon, konum ve kişi bilgisi istemez. Oyun ilerlemesi sadece cihaz içinde tutulur.",
-                        "AlgoKids does not require accounts, show ads, or use internet. It does not request camera, microphone, location, or contacts. Game progress stays on the device."
-                    ),
-                    color = Color(0xFF455A64),
-                    fontSize = 16.sp,
-                    lineHeight = 23.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-        if (showPerformance) {
-            HomeInfoDialog(
-                title = label(language, "Oyun Geçmişi", "Progress"),
-                icon = Icons.Default.Assessment,
-                accent = Color(0xFF1976D2),
-                onDismiss = { showPerformance = false },
-                actionText = label(language, "Tamam", "OK")
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (performanceSummary.isEmpty()) {
-                        Text(
-                            label(language, "Henüz oyun oynanmadı.", "No games played yet."),
-                            color = Color(0xFF546E7A),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        performanceSummary.forEach { item ->
-                            Surface(
-                                color = Color.White,
-                                shape = RoundedCornerShape(18.dp),
-                                modifier = Modifier.fillMaxWidth(),
-                                shadowElevation = 2.dp
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.CheckCircle, null, tint = Color(0xFF4CAF50), modifier = Modifier.size(22.dp))
-                                    Spacer(Modifier.width(10.dp))
-                                    Text(item, fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32), fontSize = 15.sp)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (showExitConfirm) {
-            AlertDialog(
-                onDismissRequest = { showExitConfirm = false },
-                title = { Text(label(language, "Çıkılsın mı?", "Exit?")) },
-                text = { Text(label(language, "Oyundan çıkmak ister misin?", "Do you want to exit?")) },
-                confirmButton = {
-                    Button(onClick = { activity?.finish() }) { Text(label(language, "Çık", "Exit")) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showExitConfirm = false }) { Text(label(language, "Kal", "Stay")) }
-                }
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Brush.verticalGradient(listOf(Color(0xFFE8F5E9), Color(0xFFF1F8E9))))
-                .padding(padding)
-        ) {
-            Column {
-                // Segmented Control (Simple)
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = { section = HomeSection.GAMES },
-                        colors = ButtonDefaults.buttonColors(containerColor = if (section == HomeSection.GAMES) Color(0xFF4CAF50) else Color.LightGray),
-                        shape = RoundedCornerShape(topStart = 16.dp, bottomStart = 16.dp)
-                    ) {
-                        Text(label(language, "Oyunlar", "Games"))
-                    }
-                    Button(
-                        onClick = { section = HomeSection.STORIES },
-                        colors = ButtonDefaults.buttonColors(containerColor = if (section == HomeSection.STORIES) Color(0xFF4CAF50) else Color.LightGray),
-                        shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
-                    ) {
-                        Text(label(language, "Hikayeler", "Stories"))
-                    }
-
-                    Spacer(Modifier.width(12.dp))
-
-                    AssistChip(
-                        onClick = { onLanguageChange(if (language == AppLanguage.TR) AppLanguage.EN else AppLanguage.TR) },
-                        label = { Text(if (language == AppLanguage.TR) "TR" else "EN") },
-                        leadingIcon = { Icon(Icons.Default.Translate, contentDescription = null, modifier = Modifier.size(18.dp)) }
-                    )
-                }
-
-                if (section == HomeSection.GAMES) {
-                    Text(
-                        text = label(language, "Yanlış yapınca tekrar deneyebilirsin.", "Try again when you miss."),
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        color = Color(0xFF546E7A),
-                        fontSize = 13.sp
-                    )
-                } else {
-                    Text(
-                        text = label(language, "Sayfa değişince okur.", "Reads each page."),
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        color = Color(0xFF546E7A),
-                        fontSize = 13.sp
-                    )
-                }
-
-                if (section == HomeSection.GAMES) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(categories) { category ->
-                            CategoryCard(category) { onCategorySelect(category.type) }
-                        }
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(displayedStories) { story ->
-                            StoryCard(story, language) { onStorySelect(story) }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    if(showReset) AlertDialog(onDismissRequest={showReset=false},title={Text(label(language,"En baştan başlayalım mı?","Start from the beginning?"))},
+        text={Text(label(language,"Türkçe ve İngilizce tüm atölye başarıları, puanlar, temel alıştırmalar, rotalar ve günlük bonuslar sıfırlanacak. Seviye 1'e döneceksin; yalnızca Görsel Algı açık kalacak.","All Turkish and English workshop achievements, scores, foundation exercises, routes and daily bonuses will reset. You will return to level 1 with only Visual Skills unlocked."))},
+        confirmButton={TextButton(onClick={showReset=false;showPerformance=false;onResetProgress()},modifier=Modifier.testTag("confirm_reset_learning")) {Text(label(language,"Tüm ilerlemeyi sıfırla","Reset all progress"))}},
+        dismissButton={TextButton(onClick={showReset=false}) {Text(label(language,"Vazgeç","Cancel"))}})
+    if(showPrivacy) AlertDialog(onDismissRequest={showPrivacy=false},title={Text(label(language,"Ebeveynler için","For parents"))},text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+        Text(label(language,"Hesap gerekmez. İlerleme bu cihazda saklanır. Tamamlanan atölyelerden sonra seyrek reklam gösterilebilir.","No account is required. Progress stays on this device. Occasional ads may appear after completed workshops."))
+        Text(label(language,"Sesli okuma cihazdaki Türkçe veya İngilizce ses paketini kullanır. Paket yoksa kartlardaki yazılarla oynayabilirsin.","Narration uses an installed Turkish or English voice. If no voice is installed, play using the written cards."))
+        Text(label(language,"Birlikte oynarken çocuğun çözümünü anlatmasına fırsat ver. Yanlış yanıtlar yeni bir deneme için bilgidir.","When playing together, give your child time to explain a solution. A wrong answer is information for the next attempt."))
+    }},confirmButton={TextButton(onClick={showPrivacy=false}) {Text(label(language,"Anladım","Got it"))}})
+    if(showPerformance) AlertDialog(onDismissRequest={showPerformance=false},title={Text(label(language,"Gelişim özeti","Progress"))},text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+        Text(label(language,"Bu cihazda tamamlanan görevler. Bu özet bir zekâ testi değildir.","Completed tasks on this device. This summary is not an intelligence test."))
+        if(performanceSummary.isEmpty()) Text(label(language,"İlk atölyeni tamamladığında ilerlemen burada görünecek.","Finish your first workshop to see progress here."))
+        performanceSummary.forEach { Text(it) }
+    }},confirmButton={TextButton(onClick={showPerformance=false}) {Text(label(language,"Tamam","OK"))}})
+    if(showExit) AlertDialog(onDismissRequest={showExit=false},title={Text(label(language,"Bugünlük ara verelim mi?","Take a break?"))},text={Text(label(language,"Kaydedilen ilerlemen seni bekleyecek.","Your saved progress will be waiting."))},confirmButton={TextButton(onClick={activity?.finish()}) {Text(label(language,"Çık","Exit"))}},dismissButton={TextButton(onClick={showExit=false}) {Text(label(language,"Devam et","Keep playing"))}})
 }
 
 @Composable
-private fun HomeInfoDialog(
-    title: String,
-    icon: ImageVector,
-    accent: Color,
-    onDismiss: () -> Unit,
-    actionText: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = Color.Transparent,
-            tonalElevation = 0.dp,
-            shadowElevation = 16.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(Color(0xFFF1F8E9), Color(0xFFE3F2FD))
-                        ),
-                        RoundedCornerShape(28.dp)
-                    )
-                    .border(2.dp, Color.White.copy(alpha = 0.85f), RoundedCornerShape(28.dp))
-                    .padding(22.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.White, RoundedCornerShape(20.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(36.dp))
-                }
-                Spacer(Modifier.height(12.dp))
-                Text(title, color = Color(0xFF2E7D32), fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, textAlign = TextAlign.Center)
-                Spacer(Modifier.height(16.dp))
-                content()
-                Spacer(Modifier.height(20.dp))
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth().height(54.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
-                ) {
-                    Text(actionText, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
-                }
-            }
+fun CategoryCard(category:CategoryItem,language:AppLanguage,enabled:Boolean=true,onClick:()->Unit) {
+    val skill=when(category.type) {
+        GameCategory.ALGORITHM -> label(language,"Rota · Döngü · Hata ayıklama","Routes · Loops · Debugging")
+        GameCategory.NUMERICAL -> label(language,"İşlem zinciri · Terazi dengesi","Operation chains · Balance")
+        GameCategory.LOGIC -> label(language,"Bağımlılıklar · İpucu eleme","Dependencies · Deduction")
+        GameCategory.ATTENTION -> label(language,"Dur ve seç · Kural değişimi","Stop and select · Rule switching")
+        GameCategory.MEMORY -> label(language,"Yer hafızası · Ters sıra","Locations · Reverse recall")
+        GameCategory.VISUAL -> label(language,"Katmanlar · Eksik mozaik","Layers · Missing mosaic")
+        GameCategory.AUDIOLOGY -> label(language,"Komutları dinle · Anlam çıkar","Listen to commands · Infer meaning")
+        GameCategory.GEOMETRY -> label(language,"Zihinde döndür · Katla ve aç","Mental rotation · Reflection")
+        GameCategory.ALPHABET -> label(language,"Harf sırası · Heceler","Letter order · Word parts")
+        GameCategory.NUMBERS -> label(language,"Okunuş · Basamak değeri","Reading · Place value")
+    }
+    Card(onClick=onClick,enabled=enabled,shape=RoundedCornerShape(22.dp),colors=CardDefaults.cardColors(containerColor=Color.White),modifier=Modifier.fillMaxWidth().heightIn(min=180.dp)) {
+        Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            Surface(color=category.color.copy(alpha=.1f),shape=RoundedCornerShape(14.dp)) { Icon(category.icon,null,tint=category.color,modifier=Modifier.padding(12.dp).size(28.dp)) }
+            Text(category.title,fontWeight=FontWeight.Bold,color=Color(0xFF172B4D),style=MaterialTheme.typography.titleMedium)
+            Text(skill,color=Color(0xFF516078),style=MaterialTheme.typography.bodySmall)
         }
     }
 }
 
-@Composable
-fun CategoryCard(category: CategoryItem, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp)
-            .shadow(8.dp, RoundedCornerShape(24.dp))
-            .clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(64.dp)
-                    .background(category.color.copy(alpha = 0.1f), RoundedCornerShape(16.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(category.icon, contentDescription = null, modifier = Modifier.size(36.dp), tint = category.color)
-            }
-            Spacer(Modifier.height(12.dp))
-            Text(category.title, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF37474F))
-        }
-    }
-}
-
-@Composable
-fun StoryCard(story: Story, language: AppLanguage, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(100.dp)
-            .shadow(4.dp, RoundedCornerShape(20.dp))
-            .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(Icons.Default.AutoStories, null, modifier = Modifier.size(40.dp), tint = Color(0xFF8BC34A))
-            Spacer(Modifier.width(16.dp))
-            Text(
-                label(language, story.title, story.titleEn),
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(Modifier.weight(1f))
-            Icon(Icons.Default.ArrowForwardIos, null, modifier = Modifier.size(16.dp), tint = Color.Gray)
-        }
-    }
-}
-
-data class CategoryItem(
-    val title: String,
-    val icon: ImageVector,
-    val color: Color,
-    val type: GameCategory
-)
+data class CategoryItem(val title:String,val icon:ImageVector,val color:Color,val type:GameCategory)

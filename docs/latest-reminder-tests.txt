@@ -1,0 +1,8 @@
+
+com.algokids.ReminderIntegrationTest:..
+
+Time: 3.42
+
+OK (2 tests)
+
+

@@ -1,0 +1,21 @@
+
+com.algokids.ReminderIntegrationTest:
+Error in permissionSchedulingDeliveryDeduplicationResumeAndDisable(com.algokids.ReminderIntegrationTest):
+java.lang.AssertionError: Notification opens the recent category
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.algokids.ReminderIntegrationTest.permissionSchedulingDeliveryDeduplicationResumeAndDisable(ReminderIntegrationTest.kt:36)
+
+
+Time: 10.916
+There was 1 failure:
+1) permissionSchedulingDeliveryDeduplicationResumeAndDisable(com.algokids.ReminderIntegrationTest)
+java.lang.AssertionError: Notification opens the recent category
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.algokids.ReminderIntegrationTest.permissionSchedulingDeliveryDeduplicationResumeAndDisable(ReminderIntegrationTest.kt:36)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+

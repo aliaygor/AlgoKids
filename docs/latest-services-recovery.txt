@@ -1,0 +1,26 @@
+
+com.algokids.ReminderIntegrationTest:
+Error in permissionSchedulingDeliveryDeduplicationAndDisable(com.algokids.ReminderIntegrationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.algokids.ReminderIntegrationTest.permissionSchedulingDeliveryDeduplicationAndDisable(ReminderIntegrationTest.kt:42)
+.
+com.algokids.NarrationIntegrationTest:.
+com.algokids.WorkshopRecoveryTest:..
+com.algokids.EnglishStoryTest:.
+
+Time: 71.315
+There was 1 failure:
+1) permissionSchedulingDeliveryDeduplicationAndDisable(com.algokids.ReminderIntegrationTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:87)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertTrue(Assert.java:53)
+	at com.algokids.ReminderIntegrationTest.permissionSchedulingDeliveryDeduplicationAndDisable(ReminderIntegrationTest.kt:42)
+
+FAILURES!!!
+Tests run: 6,  Failures: 1
+
+

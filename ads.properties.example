@@ -1,0 +1,8 @@
+# Copy to ads.properties (ignored by Git).
+ADMOB_APP_ID=ca-app-pub-3940256099942544~3347511713
+ADMOB_INTERSTITIAL_ID=ca-app-pub-3940256099942544/1033173712
+# Enable only after replacing BOTH test IDs with your production IDs.
+ADS_LIVE=false
+# Additional formats remain disabled in release until real IDs are supplied.
+ADMOB_REWARDED_ID=
+ADMOB_BANNER_ID=

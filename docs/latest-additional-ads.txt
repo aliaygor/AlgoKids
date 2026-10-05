@@ -1,0 +1,8 @@
+
+com.algokids.AdditionalAdsTest:.
+
+Time: 31.851
+
+OK (1 test)
+
+

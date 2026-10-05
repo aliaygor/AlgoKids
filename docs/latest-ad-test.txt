@@ -1,0 +1,8 @@
+
+com.algokids.AdIntegrationTest:.
+
+Time: 23.227
+
+OK (1 test)
+
+

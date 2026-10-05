@@ -1,0 +1,9 @@
+
+com.algokids.AdIntegrationTest:.
+com.algokids.ProgressResetTest:.
+
+Time: 49.713
+
+OK (2 tests)
+
+

@@ -1,3 +1,7 @@
+# Eski paketlere dikkat
+
+Aşağıda adı geçen play-store-ready dosyaları bu çalışmada yeniden üretilmedi ve 2.0 yayını için kullanılmamalı. Güncel kaynak [2.0 yayın adımları](docs/RELEASE_2.0_TR.md); app/build/outputs/bundle/release/app-release.aab imzasız Gradle çıktısıdır. Mevcut upload key ile yeni imzalı AAB üretilmeli.
+
 # Algo Kids - Play Store Handoff
 
 Bu dosya telefondan veya baska bir cihazdan devam ederken gerekli bilgileri hizli bulmak icin hazirlandi.

@@ -4,6 +4,7 @@ data class GameContent(
     val id: String? = null,
     val type: GameType? = null,
     val instruction: String? = null,
+    val instructionEn: String? = null,
     val questionAssets: List<String>? = null,
     val options: List<String>? = null,
     val answer: String? = null,

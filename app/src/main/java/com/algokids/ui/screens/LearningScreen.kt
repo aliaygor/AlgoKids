@@ -1,6 +1,8 @@
 package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
+import android.content.Context
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,16 +47,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.algokids.game.model.GameCategory
-
-private data class LearningItem(
-    val symbol: String,
-    val titleTr: String,
-    val titleEn: String,
-    val detailTr: String,
-    val detailEn: String,
-    val speakTr: String,
-    val speakEn: String
-)
+import com.algokids.data.LearningContent
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 
 @Composable
 fun LearningScreen(
@@ -66,9 +62,12 @@ fun LearningScreen(
     onBack: () -> Unit
 ) {
     val items = remember(category, language) {
-        if (category == GameCategory.ALPHABET) alphabetItems(language) else numberItems()
+        if (category == GameCategory.ALPHABET) LearningContent.alphabet(language == AppLanguage.TR) else LearningContent.numbers()
     }
-    var index by remember { mutableIntStateOf(0) }
+    val preferences = LocalContext.current.getSharedPreferences("algokids_progress", Context.MODE_PRIVATE)
+    val checkpoint = "learning_${category.name}_${language.name}"
+    var index by rememberSaveable(category, language) { mutableIntStateOf(preferences.getInt(checkpoint, 0).coerceIn(0, items.lastIndex)) }
+    LaunchedEffect(index) { preferences.edit().putInt(checkpoint, index).apply() }
     if (index > items.lastIndex) index = items.lastIndex
     val item = items[index]
     val title = label(language, item.titleTr, item.titleEn)
@@ -88,12 +87,12 @@ fun LearningScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Brush.verticalGradient(listOf(Color(0xFFFFF8E1), Color(0xFFE3F2FD))))
-            .padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 24.dp)
+            .safeDrawingPadding().padding(16.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack, modifier = Modifier.size(44.dp).background(Color.White, CircleShape)) {
-                    Icon(Icons.Default.Close, null, tint = Color(0xFFD32F2F))
+                    Icon(Icons.Default.Close, label(language, "Menüye dön", "Back to menu"), tint = Color(0xFFD32F2F))
                 }
                 Text(
                     text = if (category == GameCategory.ALPHABET) label(language, "Alfabe", "Alphabet") else label(language, "Sayılar", "Numbers"),
@@ -104,7 +103,7 @@ fun LearningScreen(
                     color = Color(0xFF2E7D32)
                 )
                 IconButton(onClick = { speakCurrent() }, modifier = Modifier.size(44.dp).background(Color.White, CircleShape)) {
-                    Icon(Icons.Default.VolumeUp, null, tint = Color(0xFF1976D2))
+                    Icon(Icons.Default.VolumeUp, label(language, "Tekrar dinle", "Listen again"), tint = Color(0xFF1976D2))
                 }
             }
 
@@ -125,7 +124,10 @@ fun LearningScreen(
             Spacer(Modifier.height(10.dp))
             Text(detail, fontSize = 20.sp, lineHeight = 28.sp, color = Color(0xFF546E7A), textAlign = TextAlign.Center)
 
-            Spacer(Modifier.weight(1f))
+            if (!isSoundEnabled || !isTtsReady || !configureVoice(tts,language)) {
+                Text(label(language, "Ses kapalı veya bu dilin ses paketi hazır değil. Okunuşu karttan takip edebilirsin.", "Sound is off or this language voice is unavailable. Follow the written pronunciation."), modifier = Modifier.padding(top = 12.dp), textAlign = TextAlign.Center)
+            }
+            Spacer(Modifier.height(24.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Button(
@@ -154,63 +156,4 @@ fun LearningScreen(
             Text("${index + 1} / ${items.size}", color = Color(0xFF546E7A), fontWeight = FontWeight.Bold)
         }
     }
-}
-
-private fun alphabetItems(language: AppLanguage): List<LearningItem> {
-    val letters = if (language == AppLanguage.TR) {
-        listOf(
-            "A" to "a", "B" to "be", "C" to "ce harfi", "Ç" to "çe", "D" to "de", "E" to "e",
-            "F" to "fe", "G" to "ge", "Ğ" to "yumuşak ge", "H" to "he", "I" to "ı", "İ" to "i",
-            "J" to "je", "K" to "ke", "L" to "le", "M" to "me", "N" to "ne", "O" to "o",
-            "Ö" to "ö", "P" to "pe", "R" to "re", "S" to "se", "Ş" to "şe", "T" to "te",
-            "U" to "u", "Ü" to "ü", "V" to "ve", "Y" to "ye", "Z" to "ze"
-        ).map { (letter, sound) ->
-            val detailSound = if (letter == "C") "ce" else sound
-            LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $detailSound", "Sound: $letter", sound, letter.lowercase())
-        }
-    } else {
-        ('A'..'Z').map { char ->
-            val letter = char.toString()
-            LearningItem(letter, "$letter harfi", "Letter $letter", "Okunuşu: $letter", "Sound: $letter", letter.lowercase(), letter.lowercase())
-        }
-    }
-
-    val syllableList = if (language == AppLanguage.TR) {
-        listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE")
-    } else {
-        listOf("BA", "BE", "BO", "BU", "MA", "ME", "MO", "MU", "LA", "LE", "SA", "SE")
-    }
-    val syllables = syllableList.map {
-        LearningItem(it, "$it hecesi", "$it syllable", "Birlikte oku: $it", "Read together: $it", it.lowercase(), it.lowercase())
-    }
-    return letters + syllables
-}
-
-private fun numberItems(): List<LearningItem> = (1..100).map { number ->
-    val tr = numberToTurkish(number)
-    LearningItem(number.toString(), "$number sayısı", "Number $number", "Okunuşu: $tr", "Count: $number", tr, numberToEnglish(number))
-}
-
-private fun numberToTurkish(number: Int): String {
-    val ones = listOf("", "bir", "iki", "üç", "dört", "beş", "altı", "yedi", "sekiz", "dokuz")
-    val tens = listOf("", "on", "yirmi", "otuz", "kırk", "elli", "altmış", "yetmiş", "seksen", "doksan")
-    if (number == 100) return "yüz"
-    if (number < 10) return ones[number]
-    val ten = number / 10
-    val one = number % 10
-    return listOf(tens[ten], ones[one]).filter { it.isNotBlank() }.joinToString(" ")
-}
-
-private fun numberToEnglish(number: Int): String {
-    val small = listOf(
-        "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-        "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
-        "seventeen", "eighteen", "nineteen"
-    )
-    val tens = listOf("", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety")
-    if (number == 100) return "one hundred"
-    if (number < 20) return small[number]
-    val ten = number / 10
-    val one = number % 10
-    return listOf(tens[ten], small[one]).filter { it.isNotBlank() }.joinToString(" ")
 }

@@ -1,403 +1,139 @@
 package com.algokids.ui.screens
 
 import android.speech.tts.TextToSpeech
+import android.content.Context
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.VolumeOff
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-private enum class Move(val icon: String, val dx: Int, val dy: Int) {
-    UP("↑", 0, -1),
-    DOWN("↓", 0, 1),
-    LEFT("←", -1, 0),
-    RIGHT("→", 1, 0)
-}
-
-private data class GridPoint(val x: Int, val y: Int)
-
-private data class AlgorithmLevel(
-    val title: String,
-    val helper: String,
-    val hero: String,
-    val goalEmoji: String,
-    val blockEmoji: String,
-    val start: GridPoint,
-    val goal: GridPoint,
-    val blocks: Set<GridPoint>,
-    val maxCommands: Int,
-    val hint: List<Move>
-)
+import com.algokids.game.engine.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun AlgorithmGameScreen(
-    language: AppLanguage,
-    isSoundEnabled: Boolean,
-    tts: TextToSpeech,
-    isTtsReady: Boolean,
-    onToggleSound: () -> Unit,
-    onBack: () -> Unit
+    language: AppLanguage, isSoundEnabled: Boolean, tts: TextToSpeech, isTtsReady: Boolean,
+    onToggleSound: () -> Unit, onBack: () -> Unit
 ) {
-    val levels = remember {
-        listOf(
-            AlgorithmLevel("Roket yıldıza gitsin", "Oklara bas, yolu hazırla.", "🚀", "⭐", "☄️", GridPoint(0, 2), GridPoint(3, 0), setOf(GridPoint(1, 1)), 5, listOf(Move.RIGHT, Move.RIGHT, Move.RIGHT, Move.UP, Move.UP)),
-            AlgorithmLevel("Tavşan havuca gitsin", "Engellere çarpma.", "🐰", "🥕", "🪨", GridPoint(0, 0), GridPoint(3, 3), setOf(GridPoint(1, 0), GridPoint(1, 1), GridPoint(2, 2)), 6, listOf(Move.DOWN, Move.DOWN, Move.RIGHT, Move.DOWN, Move.RIGHT, Move.RIGHT)),
-            AlgorithmLevel("Robot şarja gitsin", "Önce sola, sonra aşağı.", "🤖", "🔋", "🧱", GridPoint(3, 0), GridPoint(0, 3), setOf(GridPoint(2, 1), GridPoint(1, 1)), 6, listOf(Move.LEFT, Move.LEFT, Move.LEFT, Move.DOWN, Move.DOWN, Move.DOWN)),
-            AlgorithmLevel("Kargo eve gitsin", "Kısa yolu bul.", "📦", "🏠", "🌳", GridPoint(0, 3), GridPoint(3, 1), setOf(GridPoint(1, 2), GridPoint(2, 2)), 5, listOf(Move.RIGHT, Move.RIGHT, Move.RIGHT, Move.UP, Move.UP)),
-            AlgorithmLevel("Arı çiçeğe gitsin", "Çiçeğe kadar uç.", "🐝", "🌸", "🌧️", GridPoint(0, 1), GridPoint(3, 2), setOf(GridPoint(1, 2), GridPoint(2, 1)), 5, listOf(Move.RIGHT, Move.RIGHT, Move.RIGHT, Move.DOWN)),
-            AlgorithmLevel("Balık denize gitsin", "Taşlardan uzak dur.", "🐟", "🌊", "🪨", GridPoint(3, 3), GridPoint(0, 0), setOf(GridPoint(2, 2), GridPoint(1, 2), GridPoint(2, 0)), 6, listOf(Move.LEFT, Move.LEFT, Move.DOWN, Move.LEFT, Move.UP, Move.UP)),
-            AlgorithmLevel("Tren istasyona gitsin", "Ray gibi sırala.", "🚂", "🚉", "🚧", GridPoint(0, 0), GridPoint(3, 2), setOf(GridPoint(0, 1), GridPoint(2, 1)), 5, listOf(Move.RIGHT, Move.RIGHT, Move.RIGHT, Move.DOWN, Move.DOWN)),
-            AlgorithmLevel("Kedi eve dönsün", "Adımları sıraya koy.", "🐱", "🏠", "🌧️", GridPoint(3, 1), GridPoint(0, 3), setOf(GridPoint(2, 2), GridPoint(1, 1)), 5, listOf(Move.LEFT, Move.LEFT, Move.LEFT, Move.DOWN, Move.DOWN))
-        )
-    }
-
-    var levelIndex by remember { mutableIntStateOf(0) }
-    var robot by remember { mutableStateOf(levels.first().start) }
-    var message by remember { mutableStateOf("") }
-    var score by remember { mutableIntStateOf(0) }
-    var misses by remember { mutableIntStateOf(0) }
-    val commands = remember { mutableStateListOf<Move>() }
+    val prefs = LocalContext.current.getSharedPreferences("algokids_progress", Context.MODE_PRIVATE)
+    val levels = RouteLevels.all
+    var levelIndex by rememberSaveable { mutableIntStateOf(prefs.getInt("route_level", 0).coerceIn(0, levels.lastIndex)) }
     val level = levels[levelIndex]
-    val isLevelComplete = robot == level.goal
-
-    fun speakShort(text: String) {
-        if (isSoundEnabled && isTtsReady) speak(tts, text, language, true)
-    }
-
-    fun speakLevelGuide(force: Boolean = false) {
-        if (!isSoundEnabled && !force) return
-        val guide = label(
-            language,
-            "${level.title}. Okları diz, başlat.",
-            "Make a path. Add arrows. Run."
-        )
-        if (isTtsReady) speak(tts, guide, language, true)
-    }
-
-    fun resetLevel() {
-        robot = level.start
-        commands.clear()
-    }
-
-    fun loadLevel(next: Int) {
-        levelIndex = next
-        val newLevel = levels[next]
-        robot = newLevel.start
-        commands.clear()
-        message = ""
-    }
-
-    fun runProgram() {
-        var current = level.start
-        var crashed = false
-        commands.forEach { move ->
-            val next = GridPoint(current.x + move.dx, current.y + move.dy)
-            if (next.x !in 0..3 || next.y !in 0..3 || next in level.blocks) {
-                crashed = true
-            } else {
-                current = next
-            }
-        }
-
-        robot = current
-        if (!crashed && current == level.goal) {
-            score++
-            message = label(language, "Aferin, başardın!", "Great, you did it!")
-            speakShort(label(language, "Aferin, başardın!", "Great, you did it!"))
-        } else {
-            misses++
-            message = label(language, "Bir daha deneyelim.", "Try again.")
-            speakShort(label(language, "Bir daha deneyelim.", "Try again."))
-        }
-    }
+    var robot by remember(levelIndex) { mutableStateOf(level.start) }
+    var message by remember(levelIndex) { mutableStateOf("") }
+    var complete by remember(levelIndex) { mutableStateOf(false) }
+    var running by remember { mutableStateOf(false) }
+    var runId by remember { mutableIntStateOf(0) }
+    var activeStep by remember(levelIndex) { mutableIntStateOf(0) }
+    var finishedAll by remember { mutableStateOf(false) }
+    val commands = remember(levelIndex) { mutableStateListOf<Move>() }
+    val visited = remember(levelIndex) { mutableStateListOf<GridPoint>() }
+    var attempts by remember(levelIndex) { mutableIntStateOf(0) }
 
     BackHandler { onBack() }
-
-    LaunchedEffect(isTtsReady, levelIndex, language, isSoundEnabled) {
-        if (isTtsReady && isSoundEnabled) speakLevelGuide()
+    DisposableEffect(Unit) { onDispose { tts.stop() } }
+    LaunchedEffect(levelIndex) { prefs.edit().putInt("route_level", levelIndex).apply() }
+    LaunchedEffect(levelIndex, language, isSoundEnabled, isTtsReady) {
+        if (isTtsReady) speak(tts, label(language, "${level.titleTr}. Her ok bir kare ilerletir. Başlangıç karesini adım olarak sayma.", "${level.titleEn}. Each arrow moves one square. The starting square is not a step."), language, isSoundEnabled)
+    }
+    LaunchedEffect(runId) {
+        if (runId == 0) return@LaunchedEffect
+        val result = RouteEngine.run(level, commands.toList())
+        robot = level.start
+        visited.clear()
+        activeStep = 0
+        result.path.drop(1).forEachIndexed { index, point ->
+            delay(450)
+            robot = point
+            visited.add(point)
+            activeStep = index + 1
+        }
+        if (result.failedStep != null) {
+            activeStep = result.failedStep
+            message = label(language, "${result.failedStep}. komut engelle veya tahta kenarıyla karşılaştı. Bu oku değiştir.", "Command ${result.failedStep} hit a wall or the edge. Change that arrow.")
+        } else if (result.reachedGoal) {
+            complete = true
+            prefs.edit().putBoolean("route_done_$levelIndex", true).apply()
+            message = label(language, "Başardın! ${commands.size} komutla en kısa yolu kurdun.", "You did it! You used the shortest path: ${commands.size} commands.")
+        } else {
+            message = label(language, "${result.path.size - 1} adım attın. Hedefe ulaşmak için okların sırasını kontrol et.", "You moved ${result.path.size - 1} steps. Check the arrow order to reach the goal.")
+        }
+        running = false
+        if (isTtsReady) speak(tts, message, language, isSoundEnabled)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFF0D47A1), Color(0xFF4DD0E1), Color(0xFFFFF59D))))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(top = 48.dp, start = 16.dp, end = 16.dp, bottom = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack, modifier = Modifier.size(44.dp).background(Color.White, CircleShape)) {
-                    Icon(Icons.Default.ArrowBack, null, tint = Color(0xFF0D47A1))
-                }
-                Spacer(Modifier.width(8.dp))
-                IconButton(onClick = onBack, modifier = Modifier.size(44.dp).background(Color(0xFFFFEBEE), CircleShape)) {
-                    Icon(Icons.Default.Close, null, tint = Color(0xFFD32F2F))
-                }
-                Text(
-                    text = label(language, "Algoritma", "Algorithm"),
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = Color.White
-                )
-                IconButton(
-                    onClick = {
-                        if (isSoundEnabled) {
-                            speakLevelGuide(force = true)
-                        } else {
-                            onToggleSound()
-                            val guide = label(
-                                language,
-                                "Ses açık. ${level.title}. Okları diz, başlat.",
-                                "Sound on. Make a path. Add arrows. Then run."
-                            )
-                            if (isTtsReady) speak(tts, guide, language, true)
-                        }
-                    },
-                    modifier = Modifier.size(44.dp).background(Color.White, CircleShape)
-                ) {
-                    Icon(if (isSoundEnabled) Icons.Default.VolumeUp else Icons.Default.VolumeOff, null, tint = Color(0xFF0D47A1))
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            Text(
-                text = "${levelIndex + 1}/${levels.size}   ${label(language, "Puan", "Score")} $score   ${label(language, "Hata", "Miss")} $misses",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-            Text(level.title, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-            Text(level.helper, color = Color.White.copy(alpha = 0.92f), fontSize = 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
-
-            Spacer(Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier
-                    .background(Color.White.copy(alpha = 0.92f), RoundedCornerShape(18.dp))
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(level.hero, fontSize = 28.sp)
-                Text("→", fontSize = 22.sp, fontWeight = FontWeight.Black, color = Color(0xFF0D47A1))
-                Text(level.goalEmoji, fontSize = 28.sp)
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            AlgorithmBoard(level = level, robot = robot)
-
-            Spacer(Modifier.height(14.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                repeat(level.maxCommands) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(42.dp)
-                            .background(Color.White.copy(alpha = 0.9f), RoundedCornerShape(10.dp))
-                            .border(2.dp, Color(0xFF90CAF9), RoundedCornerShape(10.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AnimatedContent(commands.getOrNull(index), label = "") { move ->
-                            Text(move?.icon ?: "·", fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color(0xFF0D47A1))
-                        }
-                    }
-                }
-            }
-
-            if (message.isNotBlank()) {
-                Text(message, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                Move.values().forEach { move ->
-                    Button(
-                        onClick = {
-                            if (commands.size < level.maxCommands) {
-                                commands.add(move)
-                                message = ""
+    Column(Modifier.fillMaxSize().background(Color(0xFFF4F6FC)).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = onBack) { Text(label(language, "‹ Oyunlar", "‹ Games")) }
+            Text(label(language, "Rota atölyesi", "Route workshop"), Modifier.weight(1f), fontWeight = FontWeight.Bold, color = Color(0xFF172B4D))
+            TextButton(onClick = onToggleSound) { Text(if (isSoundEnabled) label(language, "Sesi kapat", "Mute") else label(language, "Sesi aç", "Sound on")) }
+        }
+        LinearProgressIndicator(progress = { (levelIndex + 1f) / levels.size }, modifier = Modifier.fillMaxWidth())
+        Text(label(language, "Bölüm ${levelIndex + 1} / ${levels.size} · Planlama", "Level ${levelIndex + 1} / ${levels.size} · Planning"), style = MaterialTheme.typography.labelLarge)
+        Text(label(language, level.titleTr, level.titleEn), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(label(language, "Her ok = 1 kare. Başlangıç karesi adım değildir. Engelleri aşmadan ${level.maxCommands} adımda hedefe ulaş.", "Each arrow = 1 square. The starting square is not a step. Reach the goal in ${level.maxCommands} steps without hitting a wall."), style = MaterialTheme.typography.bodyLarge)
+        Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.widthIn(max = 440.dp).fillMaxWidth()) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                repeat(level.size) { y ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        repeat(level.size) { x ->
+                            val point = GridPoint(x, y)
+                            val blocked = point in level.blocks
+                            Box(Modifier.weight(1f).aspectRatio(1f).background(when { blocked -> Color(0xFF64748B); point == level.goal -> Color(0xFFFFE9AD); point in visited -> Color(0xFFD7F4EA); else -> Color(0xFFEDF1FA) }, RoundedCornerShape(10.dp)), contentAlignment = Alignment.Center) {
+                                Text(when { point == robot -> level.hero; point == level.goal -> level.goalEmoji; blocked -> "▧"; point == level.start -> "○"; else -> "" }, fontSize = 28.sp)
                             }
-                        },
-                        modifier = Modifier.size(58.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                    ) {
-                        Text(move.icon, fontSize = 26.sp, fontWeight = FontWeight.Black, color = Color(0xFF0D47A1))
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = { if (commands.isNotEmpty()) commands.removeAt(commands.lastIndex) },
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFDE7)),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
-                ) {
-                    Icon(Icons.Default.Delete, null, tint = Color(0xFF0D47A1), modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(label(language, "Sil", "Del"), color = Color(0xFF0D47A1), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-                Button(
-                    onClick = {
-                        resetLevel()
-                        message = ""
-                    },
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFDE7)),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
-                ) {
-                    Icon(Icons.Default.Refresh, null, tint = Color(0xFF0D47A1), modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(label(language, "Sıfırla", "Reset"), color = Color(0xFF0D47A1), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-                Button(
-                    onClick = {
-                        commands.clear()
-                        commands.addAll(level.hint)
-                        message = label(language, "Yol hazır.", "Path ready.")
-                        speakShort(label(language, "Yol hazır.", "Path ready."))
-                    },
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFDE7)),
-                    contentPadding = PaddingValues(horizontal = 8.dp)
-                ) {
-                    Icon(Icons.Default.Lightbulb, null, tint = Color(0xFF0D47A1), modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text(label(language, "İpucu", "Hint"), color = Color(0xFF0D47A1), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                }
-            }
-
-            Spacer(Modifier.height(10.dp))
-
-            Button(
-                onClick = {
-                    if (isLevelComplete) {
-                        loadLevel((levelIndex + 1) % levels.size)
-                    } else {
-                        runProgram()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().height(58.dp),
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
-            ) {
-                Icon(Icons.Default.PlayArrow, null, modifier = Modifier.size(24.dp))
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    if (isLevelComplete) label(language, "Sonraki", "Next") else label(language, "Başlat", "Run"),
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 20.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AlgorithmBoard(level: AlgorithmLevel, robot: GridPoint) {
-    Column(
-        modifier = Modifier
-            .shadow(10.dp, RoundedCornerShape(18.dp))
-            .background(Color.White.copy(alpha = 0.95f), RoundedCornerShape(18.dp))
-            .padding(10.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        for (y in 0..3) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (x in 0..3) {
-                    val point = GridPoint(x, y)
-                    val isBlock = point in level.blocks
-                    val text = when (point) {
-                        robot -> "🤖"
-                        level.goal -> "⭐"
-                        else -> if (isBlock) level.blockEmoji else ""
-                    }
-                    Box(
-                        modifier = Modifier
-                            .size(62.dp)
-                            .background(
-                                when {
-                                    isBlock -> Color(0xFF6D4C41)
-                                    point == level.goal -> Color(0xFFFFF59D)
-                                    else -> Color(0xFFE3F2FD)
-                                },
-                                RoundedCornerShape(12.dp)
-                            )
-                            .border(2.dp, Color.White, RoundedCornerShape(12.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = when (point) {
-                                robot -> level.hero
-                                level.goal -> level.goalEmoji
-                                else -> text
-                            },
-                            fontSize = 30.sp
-                        )
+                        }
                     }
                 }
             }
         }
+        Text(label(language, "Programın · ${commands.size}/${level.maxCommands} komut · Çalışan adım: $activeStep", "Your program · ${commands.size}/${level.maxCommands} commands · Current step: $activeStep"), fontWeight = FontWeight.Bold)
+        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            repeat(level.maxCommands) { index ->
+                Surface(shape = RoundedCornerShape(10.dp), color = if (activeStep == index + 1) Color(0xFFD7F4EA) else Color.White, modifier = Modifier.size(48.dp)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("${index + 1}", fontSize = 10.sp)
+                        Text(commands.getOrNull(index)?.icon ?: "·", fontSize = 22.sp)
+                    }
+                }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Move.entries.forEach { move ->
+                FilledTonalButton(onClick = { commands.add(move); message = "" }, enabled = !running && !complete && commands.size < level.maxCommands, contentPadding = PaddingValues(0.dp), modifier = Modifier.size(56.dp), shape = RoundedCornerShape(16.dp)) { Text(move.icon, fontSize = 28.sp) }
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            TextButton(onClick = { commands.removeAt(commands.lastIndex); robot = level.start; visited.clear(); activeStep = 0; message = "" }, enabled = !running && !complete && commands.isNotEmpty()) { Text(label(language, "Son oku sil", "Undo")) }
+            TextButton(onClick = { commands.clear(); robot = level.start; visited.clear(); complete = false; message = ""; activeStep = 0 }, enabled = !running) { Text(label(language, "Sıfırla", "Reset")) }
+            TextButton(onClick = {
+                val solution = level.solution
+                val prefix = commands.toList() == solution.take(commands.size)
+                message = if (prefix && commands.size < solution.size) label(language, "Bir sonraki adım için ${solution[commands.size].icon} yönünü düşün.", "Think about ${solution[commands.size].icon} for the next step.") else label(language, "Hedefe gitmeden önce engellerin çevresindeki boş kareleri incele. Son oklarını geri almayı dene.", "Look at the empty squares around the walls. Try undoing your last arrows.")
+            }, enabled = !running && !complete) { Text(label(language, "İpucu", "Hint")) }
+        }
+        if (message.isNotBlank()) Surface(color = Color(0xFFE6ECFA), shape = RoundedCornerShape(16.dp)) { Text(message, Modifier.padding(16.dp)) }
+        Button(onClick = {
+            if (complete) {
+                if (levelIndex < levels.lastIndex) levelIndex++ else finishedAll = true
+            } else { running = true; attempts++; message = ""; runId++ }
+        }, enabled = !running && (complete || commands.isNotEmpty()), modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp), shape = RoundedCornerShape(16.dp)) {
+            Text(if (running) label(language, "Adımları izle…", "Watch the steps…") else if (complete) label(language, "${if (levelIndex == levels.lastIndex) "Atölyeyi bitir" else "Sonraki bölüm"}", if (levelIndex == levels.lastIndex) "Finish workshop" else "Next level") else label(language, "Programı çalıştır", "Run program"))
+        }
+        Text(label(language, "Deneme: $attempts · Önce planla, sonra sonucu gözle ve düzelt.", "Attempts: $attempts · Plan, observe the result, then improve."), style = MaterialTheme.typography.bodySmall)
     }
+    if (finishedAll) AlertDialog(onDismissRequest = { finishedAll = false }, title = { Text(label(language, "Rota atölyesi tamamlandı!", "Route workshop complete!")) }, text = { Text(label(language, "Şimdi algoritma kategorisindeki döngü ve hata ayıklama görevlerini dene.", "Try the loop and debugging missions in the algorithm category next.")) }, confirmButton = { TextButton(onClick = onBack) { Text(label(language, "Oyunlara dön", "Back to games")) } }, dismissButton = { TextButton(onClick = { levelIndex = 0; finishedAll = false }) { Text(label(language, "Tekrar oyna", "Play again")) } })
 }

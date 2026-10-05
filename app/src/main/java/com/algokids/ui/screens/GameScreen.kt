@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -68,29 +70,6 @@ class GameSessionState {
     }
 }
 
-private fun contentOrder(content: GameContent): Int =
-    content.id?.filter { it.isDigit() }?.toIntOrNull() ?: 0
-
-private fun difficultyScore(content: GameContent): Int {
-    val optionCount = content.options.orEmpty().size
-    val assetCount = content.questionAssets.orEmpty().size
-    val sequenceCount = content.sequence.orEmpty().size
-    val base = when (content.type) {
-        GameType.SAME_OBJECT -> 0
-        GameType.COUNTING -> 10 + assetCount
-        GameType.PATTERN -> 20 + sequenceCount
-        GameType.WHAT_IS_NEXT -> 24 + sequenceCount
-        GameType.WHICH_IS_DIFFERENT, GameType.ODD_ONE_OUT -> 30 + assetCount
-        GameType.SHADOW_MATCH -> 34
-        GameType.SIZE_COMPARISON -> 38 + assetCount
-        GameType.SEQUENCE_LOGIC -> 42 + sequenceCount + assetCount
-        GameType.MATCHING -> 48 + optionCount + assetCount
-        GameType.FUNCTIONAL_MATCH -> 56 + optionCount + assetCount
-        else -> 70 + optionCount + assetCount + sequenceCount
-    }
-    return base * 100 + contentOrder(content)
-}
-
 private fun memoryRevealDurationMillis(index: Int, totalCount: Int): Long {
     if (totalCount <= 1) return 3000L
     val progress = index.toFloat() / (totalCount - 1).coerceAtLeast(1)
@@ -113,8 +92,8 @@ fun GameScreen(
         return
     }
 
-    val sortedItems = remember(items) {
-        items.sortedWith(compareBy<GameContent> { difficultyScore(it) }.thenBy { contentOrder(it) })
+    val orderedItems = remember(items) {
+        items
     }
     
     LaunchedEffect(isTtsReady, language) {
@@ -122,8 +101,8 @@ fun GameScreen(
             configureVoice(tts, language)
         }
     }
-    session.index = session.index.coerceIn(0, sortedItems.lastIndex)
-    val currentContent = sortedItems.getOrNull(session.index) ?: sortedItems[0]
+    session.index = session.index.coerceIn(0, orderedItems.lastIndex)
+    val currentContent = orderedItems.getOrNull(session.index) ?: orderedItems[0]
     val contentKey = currentContent.id ?: "item_${session.index}"
     val questionProgress = session.questions[contentKey] ?: QuestionProgress()
     val isCorrect = questionProgress.isCorrect
@@ -132,6 +111,7 @@ fun GameScreen(
     val matchedPairs = questionProgress.matchedPairs
     
     var showBackDialog by remember { mutableStateOf(false) }
+    var showCompleted by rememberSaveable { mutableStateOf(false) }
     
     var isHidden by remember(contentKey) { mutableStateOf(false) }
 
@@ -140,7 +120,7 @@ fun GameScreen(
     }
 
     fun markCorrect(feedback: String) {
-        if (!isCorrect) session.correctCount++
+        if (session.questions[contentKey]?.isCorrect != true) session.correctCount++
         session.wrongStreak = 0
         val latestProgress = session.questions[contentKey] ?: questionProgress
         updateQuestion(latestProgress.copy(isCorrect = true))
@@ -157,14 +137,17 @@ fun GameScreen(
         speak(tts, feedback, language, isSoundEnabled)
     }
     
-    LaunchedEffect(currentContent, language, isTtsReady) {
+    LaunchedEffect(currentContent, language, isTtsReady, isSoundEnabled) {
         if (!isTtsReady) return@LaunchedEffect
         configureVoice(tts, language)
         speak(tts, spokenInstruction(currentContent, language), language, isSoundEnabled)
         
+    }
+
+    LaunchedEffect(contentKey) {
         if (currentContent.category == GameCategory.MEMORY) {
             isHidden = false
-            delay(memoryRevealDurationMillis(session.index, sortedItems.size))
+            delay(memoryRevealDurationMillis(session.index, orderedItems.size))
             isHidden = true
         }
     }
@@ -192,6 +175,10 @@ fun GameScreen(
     }
 
     BackHandler { goBackOneStep() }
+    if(showCompleted) AlertDialog(onDismissRequest={showCompleted=false;onBack()},
+        title={Text(label(language,"Temel alıştırma tamamlandı!","Foundation practice complete!"))},
+        text={Text(label(language,"${orderedItems.size} bölümü bitirdin. Sonraki kategoriyi açmak için bu setteki puanlı atölyeleri de tamamla.","You finished ${orderedItems.size} levels. Complete this set’s scored workshops to unlock the next category."))},
+        confirmButton={TextButton(onClick={showCompleted=false;onBack()},modifier=Modifier.testTag("foundation_finished")) {Text(label(language,"Atölyelere dön","Back to workshops"))}})
 
     GameScene(
         title = when(currentContent.category) {
@@ -214,12 +201,13 @@ fun GameScreen(
             }
         },
         instruction = localizedInstruction(currentContent, language),
-        progress = (session.index + 1).toFloat() / sortedItems.size,
+        progress = (session.index + 1).toFloat() / orderedItems.size,
         scoreText = label(language, "Doğru ${session.correctCount}  Hata ${session.mistakeCount}", "Right ${session.correctCount}  Miss ${session.mistakeCount}"),
         onBack = { goBackOneStep() },
         onExit = { showBackDialog = true },
         isSoundEnabled = isSoundEnabled,
-        onToggleSound = onToggleSound
+        onToggleSound = onToggleSound,
+        language = language
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -240,7 +228,7 @@ fun GameScreen(
                         content.category == GameCategory.MEMORY -> MemoryView(content, isHidden, language)
                         content.type == GameType.PATTERN || content.type == GameType.WHAT_IS_NEXT || content.type == GameType.SEQUENCE_LOGIC -> PatternGameView(content, isCorrect)
                         content.type == GameType.COUNTING -> CountingGameView(content)
-                        content.type == GameType.SHADOW_MATCH -> ShadowGameView(content)
+                        content.type == GameType.SHADOW_MATCH -> ShadowGameView(content, language)
                         content.type == GameType.WHICH_IS_DIFFERENT || content.type == GameType.ODD_ONE_OUT -> DifferentGameView(content)
                         content.type == GameType.MATCHING || content.type == GameType.FUNCTIONAL_MATCH -> MatchingGameView(
                             content = content,
@@ -271,7 +259,7 @@ fun GameScreen(
                         )
                         content.type == GameType.SIZE_COMPARISON -> SizeComparisonView(content)
                         content.type == GameType.SAME_OBJECT || content.type == GameType.FIND_THE_PAIR -> SameObjectView(content)
-                        else -> Text("Çok yakında!")
+                        else -> SameObjectView(content)
                     }
                 }
             }
@@ -286,7 +274,7 @@ fun GameScreen(
                     val isMatchingType = currentContent.type == GameType.MATCHING || currentContent.type == GameType.FUNCTIONAL_MATCH
                     if (!isMatchingType) {
                         val shuffledOptions = remember(currentContent) { currentContent.options?.shuffled() ?: emptyList() }
-                        OptionsGrid(shuffledOptions) { selected ->
+                        OptionsGrid(shuffledOptions, enabled = currentContent.category != GameCategory.MEMORY || isHidden) { selected ->
                             if (selected.equals(currentContent.answer, ignoreCase = true)) {
                                 markCorrect(label(language, "Doğru.", "Right."))
                             } else {
@@ -295,22 +283,27 @@ fun GameScreen(
                         }
                     }
                 } else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Button(
                         onClick = {
-                            if (session.index < sortedItems.size - 1) session.index++ else session.restart()
+                            if (session.index < orderedItems.size - 1) session.index++ else showCompleted=true
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(64.dp)
+                            .height(64.dp).testTag("foundation_next")
                             .shadow(8.dp, RoundedCornerShape(20.dp)),
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
                     ) {
                         Text(
-                            if (session.index < sortedItems.size - 1) label(language, "İleri", "Next") else label(language, "Baştan oyna", "Play again"),
+                            if (session.index < orderedItems.size - 1) label(language, "İleri", "Next") else label(language, "Temel alıştırmayı bitir", "Finish foundation practice"),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
+                    }
+                    if (session.index == orderedItems.lastIndex) {
+                        TextButton(onClick = { session.restart() }) { Text(label(language, "Baştan oyna", "Play again")) }
+                    }
                     }
                 }
             }
@@ -369,63 +362,15 @@ fun AudiologyView(language: AppLanguage, onPlaySound: () -> Unit) {
     }
 }
 
-fun checkMatch(content: GameContent, left: String, right: String): Boolean {
-    val orderedPairs = content.questionAssets.orEmpty().zip(content.options.orEmpty())
-    if (orderedPairs.any {
-            (it.first.equals(left, ignoreCase = true) && it.second.equals(right, ignoreCase = true)) ||
-                (it.first.equals(right, ignoreCase = true) && it.second.equals(left, ignoreCase = true))
-        }
-    ) {
-        return true
-    }
-
-    val functionalMap = mapOf(
-        "apple" to "tree", "elma" to "ağaç",
-        "bee" to "flower", "arı" to "çiçek",
-        "dog" to "bone", "köpek" to "kemik",
-        "bird" to "nest", "kuş" to "yuva",
-        "rain" to "umbrella", "yağmur" to "şemsiye",
-        "sun" to "sunglasses", "güneş" to "gözlük",
-        "monkey" to "banana", "maymun" to "muz",
-        "rabbit" to "carrot", "tavşan" to "havuç",
-        "car" to "tire", "araba" to "tekerlek",
-        "hammer" to "nail", "çekiç" to "çivi",
-        "fish" to "sea", "balık" to "deniz",
-        "house" to "dog", "ev" to "köpek",
-        "cow" to "milk", "inek" to "süt",
-        "chicken" to "egg", "tavuk" to "yumurta",
-        "pencil" to "paper", "kalem" to "kağıt",
-        "brush" to "paint", "fırça" to "boya"
-    )
-
-    // Geometri Kenar Sayıları Eşleştirmesi
-    val geometryEdgeMap = mapOf(
-        "TRIANGLE" to "3", "ÜÇGEN" to "3",
-        "SQUARE" to "4", "KARE" to "4",
-        "RECTANGLE" to "4", "DİKDÖRTGEN" to "4",
-        "CIRCLE" to "0", "DAİRE" to "0",
-        "STAR_SHAPE" to "5", "YILDIZ" to "5",
-        "HEART" to "KALP"
-    )
-    
-    return when(content.type) {
-        GameType.FUNCTIONAL_MATCH, GameType.MATCHING -> {
-            if (content.category == GameCategory.GEOMETRY) {
-                (geometryEdgeMap[left.uppercase()] == right.uppercase()) ||
-                (geometryEdgeMap[right.uppercase()] == left.uppercase())
-            } else {
-                (functionalMap[left.lowercase()]?.equals(right, ignoreCase = true) == true) || 
-                (functionalMap[right.lowercase()]?.equals(left, ignoreCase = true) == true)
-            }
-        }
-        else -> left.equals(right, ignoreCase = true)
-    }
-}
+fun checkMatch(content: GameContent, left: String, right: String): Boolean =
+    com.algokids.game.engine.ContentRules.checkMatch(content, left, right)
 
 fun label(language: AppLanguage, tr: String, en: String): String =
     if (language == AppLanguage.TR) tr else en
 
 fun localizedInstruction(content: GameContent, language: AppLanguage): String {
+    if (language == AppLanguage.TR && !content.instruction.isNullOrBlank()) return content.instruction
+    if (language == AppLanguage.EN && !content.instructionEn.isNullOrBlank()) return content.instructionEn
     return when (content.type) {
         GameType.PATTERN, GameType.WHAT_IS_NEXT -> label(language, "Sıradakini bul.", "Find next.")
         GameType.COUNTING -> label(language, "Say ve seç.", "Count and pick.")
@@ -441,7 +386,7 @@ fun localizedInstruction(content: GameContent, language: AppLanguage): String {
 
 private fun spokenInstruction(content: GameContent, language: AppLanguage): String {
     if (content.category == GameCategory.AUDIOLOGY) {
-        return content.instruction ?: label(language, "Sesi dinle.", "Listen.")
+        return if(language == AppLanguage.TR) content.instruction ?: "Sesi dinle." else content.instructionEn ?: "Listen."
     }
     return localizedInstruction(content, language)
 }
@@ -456,27 +401,11 @@ private fun sizeComparisonInstruction(content: GameContent, language: AppLanguag
     }
 }
 
-fun configureVoice(tts: TextToSpeech, language: AppLanguage) {
-    tts.language = language.locale
-    tts.setSpeechRate(if (language == AppLanguage.TR) 0.88f else 0.92f)
-    tts.setPitch(if (language == AppLanguage.TR) 1.12f else 1.08f)
-    val bestVoice = tts.voices
-        ?.filter { it.locale.language == language.locale.language }
-        ?.maxByOrNull { voice ->
-            val name = voice.name.lowercase(Locale.ROOT)
-            val feminineHint = listOf("female", "woman", "girl", "kadin", "kadın", "fem").any { it in name }
-            val naturalHint = listOf("network", "neural", "wavenet", "premium").any { it in name }
-            voice.quality * 1000 - voice.latency + (if (feminineHint) 500 else 0) + (if (naturalHint) 250 else 0)
-        }
-    if (bestVoice != null) {
-        tts.voice = bestVoice
-    }
-}
+fun configureVoice(tts: TextToSpeech, language: AppLanguage): Boolean = com.algokids.speech.ChildNarration.configure(tts,language)
 
 fun speak(tts: TextToSpeech, text: String, language: AppLanguage, enabled: Boolean) {
-    if (!enabled || text.isBlank()) return
-    configureVoice(tts, language)
-    tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, text.hashCode().toString())
+    if (!enabled || text.isBlank() || !configureVoice(tts,language)) return
+    tts.speak(com.algokids.speech.ChildNarration.text(text,language==AppLanguage.EN),TextToSpeech.QUEUE_FLUSH,null,text.hashCode().toString())
 }
 
 @Composable
@@ -602,33 +531,19 @@ fun MatchingCard(name: String, isMatched: Boolean, isSelected: Boolean, cardSize
 }
 
 @Composable
-fun OptionsGrid(options: List<String>, onSelected: (String) -> Unit) {
-    val itemSize = when {
-        options.size >= 5 -> 54.dp
-        options.size == 4 -> 62.dp
-        else -> 74.dp
-    }
-    val iconSize = when {
-        options.size >= 5 -> 32.dp
-        options.size == 4 -> 38.dp
-        else -> 44.dp
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        options.forEach { option ->
-            Card(
-                modifier = Modifier
-                    .size(itemSize)
-                    .clickable { onSelected(option) }
-                    .shadow(3.dp, RoundedCornerShape(16.dp)),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
-            ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    AssetIcon(option, size = iconSize)
+fun OptionsGrid(options: List<String>, enabled: Boolean = true, onSelected: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.chunked(3).forEach { row ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                row.forEach { option ->
+                    Card(onClick = { onSelected(option) }, enabled = enabled,
+                        modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag("foundation_choice_$option"),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFEDF1FA))) {
+                        Box(Modifier.fillMaxWidth().padding(8.dp), contentAlignment = Alignment.Center) {
+                            AssetIcon(option, size = 44.dp)
+                        }
+                    }
                 }
             }
         }
@@ -643,6 +558,7 @@ fun PatternGameView(content: GameContent, isCorrect: Boolean) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 12.dp)
+            .horizontalScroll(rememberScrollState())
     ) {
         val sequence = content.sequence ?: content.questionAssets ?: emptyList()
         val iconSize = when {
@@ -690,9 +606,9 @@ fun CountingGameView(content: GameContent) {
 }
 
 @Composable
-fun ShadowGameView(content: GameContent) {
+fun ShadowGameView(content: GameContent, language: AppLanguage) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Bu hangi şekil?", fontSize = 18.sp, color = Color.Gray)
+        Text(label(language, "Bu hangi şekil?", "Which shape is this?"), fontSize = 18.sp, color = Color.Gray)
         Spacer(Modifier.height(16.dp))
         Box(
             modifier = Modifier

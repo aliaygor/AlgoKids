@@ -1,0 +1,13 @@
+
+com.algokids.EnglishStoryTest:.
+com.algokids.ReminderIntegrationTest:..
+com.algokids.LearningPathFlowTest:.
+com.algokids.AdditionalAdsTest:.
+com.algokids.AdIntegrationTest:.
+com.algokids.ProgressResetTest:.
+
+Time: 109.426
+
+OK (7 tests)
+
+

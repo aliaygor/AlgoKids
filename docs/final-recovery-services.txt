@@ -1,0 +1,11 @@
+
+com.algokids.WorkshopRecoveryTest:..
+com.algokids.EnglishStoryTest:.
+com.algokids.ReminderIntegrationTest:..
+com.algokids.ProgressResetTest:.
+
+Time: 76.986
+
+OK (6 tests)
+
+
