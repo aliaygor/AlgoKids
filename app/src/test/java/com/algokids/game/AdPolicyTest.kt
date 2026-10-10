@@ -8,7 +8,8 @@ class AdPolicyTest {
   assertFalse(AdPolicy.eligible(false,1,999999,999999,0))
   assertFalse(AdPolicy.eligible(false,2,1000,999999,0))
   assertFalse(AdPolicy.eligible(false,2,999999,1000,0))
-  assertFalse(AdPolicy.eligible(false,2,999999,999999,2))
+  assertFalse(AdPolicy.eligible(false,2,999999,999999,AdPolicy.MAX_PER_SESSION))
   assertTrue(AdPolicy.eligible(false,2,180000,180000,0))
+  assertTrue(AdPolicy.eligible(false,2,180000,180000,2))
  }
 }

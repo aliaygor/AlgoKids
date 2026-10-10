@@ -12,10 +12,28 @@ import com.google.android.ump.*
 import com.google.android.gms.ads.rewarded.*
 import androidx.compose.runtime.*
 
-/** Only natural workshop-completion breaks can display ads. No score or solution depends on ads. */
+/** Only natural workshop-completion breaks can display ads. Learning progress and free worked examples never depend on ads. */
 class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
     private val prefs=activity.getSharedPreferences("algokids_progress",0)
     private val consent=UserMessagingPlatform.getConsentInformation(activity)
+    private val retryHandler=android.os.Handler(android.os.Looper.getMainLooper())
+    private var interstitialFailures=0
+    private var rewardedFailures=0
+    private fun retry(rewarded:Boolean) {
+        val failures=if(rewarded) rewardedFailures else interstitialFailures
+        if(failures>3 || destroyed || disabled)return
+        retryHandler.postDelayed({
+            if(!destroyed && activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                if(rewarded)loadReward() else load()
+            }
+        },30_000L * failures.coerceAtLeast(1))
+    }
+    fun resume() {
+        if(sdkReady && !destroyed && !disabled) {
+            if(ad==null && !loading)load()
+            if(reward==null && !rewardLoading)loadReward()
+        }
+    }
     private var ad:InterstitialAd?=null
     private var loading=false
     private var initialized=false
@@ -29,7 +47,7 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
     val bannerAllowed get()=BuildConfig.BANNER_ENABLED && sdkReady && !disabled && !destroyed && canLoad()
     private fun rewardEligibleNow():Boolean {
         val now=SystemClock.elapsedRealtime();val last=prefs.getLong("ads_last_shown",0)
-        return prefs.getInt("ads_session",1)>1 && prefs.getInt("ads_shown_session",0)<2 &&
+        return prefs.getInt("ads_session",1)>1 && prefs.getInt("ads_shown_session",0)<AdPolicy.MAX_PER_SESSION &&
             (last==0L || now<last || now-last>=AdPolicy.GAP)
     }
     val rewardReady get()=reward!=null && !showing && !disabled && !destroyed && canLoad() && rewardEligibleNow()
@@ -67,15 +85,21 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
         }.start()
     }
     private fun loadReward() {
-        if(!BuildConfig.REWARDED_ENABLED || !sdkReady || disabled || destroyed || rewardLoading || !canLoad())return
+        if(reward!=null || !BuildConfig.REWARDED_ENABLED || !sdkReady || disabled || destroyed || rewardLoading || !canLoad())return
         rewardLoading=true
         RewardedAd.load(activity,BuildConfig.ADMOB_REWARDED_ID,request(),object:RewardedAdLoadCallback() {
-            override fun onAdLoaded(value:RewardedAd) {rewardLoading=false;if(!destroyed) {reward=value;rewardLoadedAt=SystemClock.elapsedRealtime()} }
-            override fun onAdFailedToLoad(error:LoadAdError) {rewardLoading=false;reward=null}
+            override fun onAdLoaded(value:RewardedAd) {rewardLoading=false;rewardedFailures=0;if(!destroyed) {reward=value;rewardLoadedAt=SystemClock.elapsedRealtime()} }
+            override fun onAdFailedToLoad(error:LoadAdError) {rewardLoading=false;reward=null;rewardedFailures++;retry(true)}
         })
     }
-    /** Explicit opt-in; only the SDK's earned callback unlocks a cosmetic, never learning progress. */
-    fun rewardTheme(stopAudio:()->Unit,onFinished:(Boolean)->Unit) {
+    /** Explicit opt-in; only the SDK's earned callback grants the selected reward, never learning progress. */
+    fun rewardTheme(stopAudio:()->Unit,onFinished:(Boolean)->Unit) = showReward(stopAudio,{
+        prefs.edit().putBoolean("cosmetic_sunset_unlocked",true).apply()
+    },onFinished)
+    fun rewardSolution(stopAudio:()->Unit,onFinished:(Boolean)->Unit) = showReward(stopAudio,{
+        com.algokids.data.SolutionAllowance(prefs).reward()
+    },onFinished)
+    private fun showReward(stopAudio:()->Unit,onEarned:()->Unit,onFinished:(Boolean)->Unit) {
         val now=SystemClock.elapsedRealtime()
         val available=reward
         if(!rewardReady || available==null || now-rewardLoadedAt>=3_600_000 || !activity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
@@ -90,16 +114,16 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
             override fun onAdDismissedFullScreenContent()=finish()
             override fun onAdFailedToShowFullScreenContent(error:AdError)=finish()
         }
-        try {available.show(activity) { if(!earned) {earned=true;prefs.edit().putBoolean("cosmetic_sunset_unlocked",true).apply()} }} catch(_:Exception) {finish()}
+        try {available.show(activity) { if(!earned) {earned=true;onEarned()} }} catch(_:Exception) {finish()}
     }
     private fun load() {
-        if(disabled || destroyed || loading || !initialized || !canLoad())return
+        if(ad!=null || disabled || destroyed || loading || !sdkReady || !canLoad())return
         loading=true
         val extra=Bundle().apply { putString("npa","1") }
         val request=AdRequest.Builder().addNetworkExtrasBundle(com.google.ads.mediation.admob.AdMobAdapter::class.java,extra).build()
         InterstitialAd.load(activity,BuildConfig.ADMOB_INTERSTITIAL_ID,request,object:InterstitialAdLoadCallback() {
-            override fun onAdLoaded(value:InterstitialAd) { loading=false;if(!destroyed) { ad=value;loadedAt=SystemClock.elapsedRealtime() } }
-            override fun onAdFailedToLoad(error:LoadAdError) { loading=false;ad=null }
+            override fun onAdLoaded(value:InterstitialAd) { loading=false;interstitialFailures=0;if(!destroyed) { ad=value;loadedAt=SystemClock.elapsedRealtime() } }
+            override fun onAdFailedToLoad(error:LoadAdError) { loading=false;ad=null;interstitialFailures++;retry(false) }
         })
     }
     fun afterWorkshop(id:String,stopAudio:()->Unit,continueGame:()->Unit) {
@@ -132,5 +156,5 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
     }
     fun privacyRequired()=consent.privacyOptionsRequirementStatus==ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     fun privacyOptions() { if(privacyRequired())UserMessagingPlatform.showPrivacyOptionsForm(activity) { ad=null;reward=null;load();loadReward() } }
-    fun destroy() { destroyed=true;ad=null;reward=null;sdkReady=false }
+    fun destroy() { destroyed=true;retryHandler.removeCallbacksAndMessages(null);ad=null;reward=null;sdkReady=false }
 }

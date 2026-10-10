@@ -8,6 +8,16 @@ object LearningPath {
     val order = listOf(GameCategory.VISUAL, GameCategory.ATTENTION, GameCategory.MEMORY,
         GameCategory.AUDIOLOGY, GameCategory.NUMBERS, GameCategory.ALPHABET,
         GameCategory.GEOMETRY, GameCategory.NUMERICAL, GameCategory.LOGIC, GameCategory.ALGORITHM)
+    fun nextCategory(p: SharedPreferences, language: String, recent: GameCategory?): GameCategory? =
+        recent?.takeIf { unlocked(p,it,language) && !completed(p,it,language) }
+            ?: order.firstOrNull { unlocked(p,it,language) && !completed(p,it,language) }
+    fun progress(p: SharedPreferences, category: GameCategory, language: String, foundationDone: Boolean = false): Int {
+        val workshops = ChallengeCatalog.forCategory(category)
+        val total = workshops.sumOf { it.rounds.size } + if(Curriculum.hasFoundation(category)) 3 else 0
+        val done = workshops.sumOf { c -> if (workshopCompleted(p,c,language)) c.rounds.size else
+            c.rounds.indices.count { p.contains(key(c.id,language,it)) } }
+        return if (total == 0) 0 else (done + if(foundationDone && Curriculum.hasFoundation(category)) 3 else 0) * 100 / total
+    }
     fun earned(mistakes: Int) = 100 - mistakes.coerceIn(0,3) * 25
     fun key(id: String, language: String, round: Int) = "${Curriculum.progressKey(id,language)}_exam_$round"
     fun workshopCompleted(p:SharedPreferences,c:Challenge,language:String) =

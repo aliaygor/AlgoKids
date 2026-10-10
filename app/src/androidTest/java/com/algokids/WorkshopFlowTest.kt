@@ -58,6 +58,10 @@ class WorkshopFlowTest {
    compose.onNodeWithText(t(c.titleTr,c.titleEn)).performClick()
    c.rounds.forEachIndexed { index,r ->
     compose.onNodeWithText(t("Görev ${index+1}/3","Mission ${index+1}/3"),substring=true).assertExists()
+    tap("example_solution")
+    r.answer.forEach { compose.onNodeWithText(t("Sonraki çözüm adımı","Next solution step")).performScrollTo().performClick() }
+    assertFalse("Example must not award progress",prefs.contains(LearningPath.key(c.id,language.name,index)))
+    tap("example_solution")
     if(c.mode in setOf(ChallengeMode.RECALL,ChallengeMode.GRID_RECALL)) { compose.onNodeWithTag("check").assertIsNotEnabled(); tap("memory_toggle") }
     if(c.mode in setOf(ChallengeMode.LISTEN,ChallengeMode.LISTEN_CHOICE)) { tap("transcript"); compose.onNodeWithText(t(r.spokenTr,r.spokenEn)).assertExists() }
     r.answer.forEach { token -> tap(when(c.mode) {

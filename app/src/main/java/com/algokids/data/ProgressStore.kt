@@ -28,7 +28,12 @@ class ProgressStore(context: Context) {
         preferences.edit().putString("session_v${Curriculum.REVISION}_${category.name}", gson.toJson(SavedSession(state.index,state.correctCount,state.mistakeCount,state.questions.toMap()))).apply()
     }
 
-    fun foundationCompleted(category:GameCategory):Boolean {
+    fun foundationCompleted(category:GameCategory, language:String="TR"):Boolean {
+        if(category==GameCategory.ALGORITHM) return com.algokids.game.engine.RouteLevels.all.indices.all { preferences.getBoolean("route_done_$it",false) }
+        if(category in setOf(GameCategory.ALPHABET,GameCategory.NUMBERS)) {
+            val last = if(category==GameCategory.NUMBERS) 100 else if(language=="TR") 28 else 25
+            return preferences.getInt("learning_${category.name}_$language",0)>=last
+        }
         val ids=Curriculum.foundationIds(category)
         val state=load(category)
         return ids.isNotEmpty() && ids.all { state.questions[it]?.isCorrect==true }

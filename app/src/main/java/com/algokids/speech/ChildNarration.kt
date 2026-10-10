@@ -24,7 +24,7 @@ object ChildNarration {
     .thenByDescending {allowNetwork && it.isNetworkConnectionRequired}
     .thenBy {it.latency}.thenBy {it.name})?.firstOrNull() ?: return false
   if(tts.setVoice(voice)!=TextToSpeech.SUCCESS)return false
-  tts.setSpeechRate(if(story) 1f else .94f);tts.setPitch(1f)
+  tts.setSpeechRate(if(story) 1f else 1f);tts.setPitch(1f)
   return tts.voice?.locale?.language==language.locale.language && (allowNetwork || tts.voice?.isNetworkConnectionRequired==false)
  }
  fun text(raw:String,en:Boolean):String {

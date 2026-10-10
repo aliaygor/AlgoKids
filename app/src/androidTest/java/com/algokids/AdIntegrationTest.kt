@@ -17,7 +17,8 @@ import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class AdIntegrationTest {
- @get:Rule val compose=createAndroidComposeRule<MainActivity>()
+ @get:Rule(order=0) val notifications=AuditPermissionRule()
+ @get:Rule(order=1) val compose=createAndroidComposeRule<MainActivity>()
  @Test fun googleTestAdLoadsAtCompletionAndReturnsWithoutChangingLearningScore() {
   val p=compose.activity.getSharedPreferences("algokids_progress",0)
   val learningScores=p.all.filterKeys { "_exam_" in it }
@@ -43,8 +44,22 @@ class AdIntegrationTest {
    val image=i.uiAutomation.takeScreenshot()
    File(dir,"ad-test.png").outputStream().use { image.compress(Bitmap.CompressFormat.PNG,100,it) };image.recycle()
    // Closing the SDK test creative, never clicking the advertiser.
-   android.os.SystemClock.sleep(20000)
-   i.uiAutomation.executeShellCommand("input keyevent KEYCODE_BACK").close()
+   android.os.SystemClock.sleep(5500)
+   val closeImage=i.uiAutomation.takeScreenshot()
+   AuditScreenshot.save(compose.activity,closeImage,"ad-close-5s.png");closeImage.recycle()
+   fun closeButton(node:android.view.accessibility.AccessibilityNodeInfo?):Boolean {
+       if(node==null)return false
+       val description=node.contentDescription?.toString().orEmpty()
+       if(description.isNotEmpty())android.util.Log.i("AdCloseAudit","${node.className}: $description clickable=${node.isClickable}")
+       if(description in setOf("Close ad","Close","Interstitial close button","Kapat")) {
+           var target:android.view.accessibility.AccessibilityNodeInfo?=node
+           while(target!=null && !target.isClickable)target=target.parent
+           if(target!=null)return target.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)
+       }
+       for(child in 0 until node.childCount)if(closeButton(node.getChild(child)))return true
+       return false
+   }
+   if(!closeButton(i.uiAutomation.rootInActiveWindow))i.uiAutomation.executeShellCommand("input keyevent KEYCODE_BACK").close()
    compose.waitUntil(10000) { returned }
    assertEquals(1,p.getInt("ads_shown_session",0))
    assertEquals(learningScores,p.all.filterKeys { "_exam_" in it })

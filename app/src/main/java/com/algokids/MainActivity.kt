@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         intent.removeExtra("resume_category")
         return category
     }
-    override fun onStart() { super.onStart(); com.algokids.notifications.ReminderScheduler.visit(this) }
+    override fun onStart() { super.onStart();if(::workshopAds.isInitialized)workshopAds.resume(); com.algokids.notifications.ReminderScheduler.visit(this) }
     override fun onNewIntent(intent: android.content.Intent) { super.onNewIntent(intent);setIntent(intent);com.algokids.notifications.ReminderScheduler.visit(this);reminderCategory=consumeReminder(intent) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,11 +74,11 @@ class MainActivity : ComponentActivity() {
                 val challenge=ChallengeCatalog.all.find { it.id==challengeId }?.let { ChallengeLocalization.localize(it,language==AppLanguage.EN) }
                 when {
                     appearanceVisible -> AppearanceScreen(language,workshopAds,{sharedTts.stop()},{appearanceVisible=false})
-                    parentSettings -> ParentSettingsScreen(language,sharedTts,isTtsReady,{parentSettings=false},workshopAds.privacyRequired(),{workshopAds.privacyOptions()}, {com.algokids.ads.ParentBanner(workshopAds,language)})
+                    parentSettings -> ParentSettingsScreen(language,sharedTts,isTtsReady,{parentSettings=false},workshopAds.privacyRequired(),{workshopAds.privacyOptions()}, {com.algokids.ads.ParentBanner(workshopAds,language)}, {parentSettings=false;appearanceVisible=true})
                     dailyVisible -> DailyMissionScreen(language,{dailyVisible=false})
                     selectedStory != null -> StoryScreen(selectedStory!!,language,isSoundEnabled,sharedTts,isTtsReady,{isSoundEnabled=!isSoundEnabled},{selectedStoryId=null})
                     challenge != null -> key(challenge.id) { ChallengeScreen(challenge,language,sharedTts,isTtsReady,isSoundEnabled,{isSoundEnabled=!isSoundEnabled},{challengeId=null},
-                        {workshopAds.afterWorkshop(challenge.id,{sharedTts.stop()},{challengeId=null})}) }
+                        {workshopAds.afterWorkshop(challenge.id,{sharedTts.stop()},{challengeId=null})},workshopAds) }
                     selectedCategory != null && !classic -> CategoryScreen(selectedCategory!!,language,{classic=true},{challengeId=it.id},{selectedCategory=null})
                     selectedCategory != null -> {
                         val category=selectedCategory!!

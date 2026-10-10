@@ -26,10 +26,10 @@ import com.algokids.ads.WorkshopAds
  val rewardReady=tick.let {ads.rewardReady}
  fun select(theme:String) {selected=theme;p.edit().putString("cosmetic_theme",theme).apply()}
  BackHandler(onBack=onBack)
- Column(Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(18.dp)) {
+ Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(18.dp)) {
   TextButton(onClick=onBack) {Text(label(language,"‹ Ana sayfa","‹ Home"))}
   Text(label(language,"Görünüm seçenekleri","Appearance"),style=MaterialTheme.typography.headlineMedium)
-  Text(label(language,"Renkler yalnızca ana sayfanın görünümünü değiştirir. Oyunlar, çözümler, puanlar ve kategoriler aynı kalır.","Colours change only the home screen's appearance. Games, solutions, scores and categories stay the same."))
+  Text(label(language,"Seçtiğin renk ana sayfanın ve düşünme atölyelerinin arka planını, kartlarını ve düğmelerini değiştirir.","Your colour changes the backgrounds, cards and buttons on the home screen and thinking workshops."))
   Button(onClick={select("ocean")},modifier=Modifier.fillMaxWidth().testTag("theme_ocean")) {Text(label(language,"Okyanus · Ücretsiz","Ocean · Free")+if(selected=="ocean") " ✓" else "")}
   Box(Modifier.fillMaxWidth().height(100.dp).background(Color(0xFF703C47))) {Text(label(language,"Gün batımı","Sunset"),color=Color.White,modifier=Modifier.padding(20.dp))}
   if(unlocked) Button(onClick={select("sunset")},modifier=Modifier.fillMaxWidth().testTag("theme_sunset")) {Text(label(language,"Gün batımını seç","Choose sunset")+if(selected=="sunset") " ✓" else "")}

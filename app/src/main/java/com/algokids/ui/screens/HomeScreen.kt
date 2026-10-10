@@ -42,6 +42,7 @@ fun HomeScreen(
     val activity = context as? Activity
     val prefs = context.getSharedPreferences("algokids_progress",Context.MODE_PRIVATE)
     val recent = remember(progressRevision) { runCatching { GameCategory.valueOf(prefs.getString("recent_category", "") ?: "") }.getOrNull() }
+    val resume = com.algokids.data.LearningPath.nextCategory(prefs,language.name,recent)
     BackHandler { if(storiesVisible) onStoriesVisibleChange(false) else showExit=true }
     val categories = listOf(
         CategoryItem(categoryTitle(GameCategory.ALGORITHM,language),Icons.Default.AccountTree,Color(0xFF277D86),GameCategory.ALGORITHM),
@@ -57,9 +58,11 @@ fun HomeScreen(
     ).sortedBy { com.algokids.data.LearningPath.order.indexOf(it.type) }
     val sampleStories = com.algokids.data.StoryCatalog.ordered(language==AppLanguage.EN)
 
-    LazyVerticalGrid(columns=GridCells.Adaptive(156.dp),modifier=Modifier.fillMaxSize().background(Color(0xFFF4F6FC)).safeDrawingPadding(),contentPadding=PaddingValues(20.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+    LazyVerticalGrid(columns=GridCells.Adaptive(156.dp),modifier=Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding(),contentPadding=PaddingValues(20.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
         item(span={GridItemSpan(maxLineSpan)}) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(com.algokids.R.drawable.ic_app_logo),label(language,"AlgoKids logosu","AlgoKids logo"),Modifier.size(48.dp))
+                Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
                     Text("AlgoKids",fontWeight=FontWeight.ExtraBold,fontSize=28.sp,color=Color(0xFF172B4D))
                     Text(label(language,"Küçük adımlar, güçlü düşünceler","Small steps, thoughtful minds"),style=MaterialTheme.typography.bodySmall,color=Color(0xFF516078))
@@ -78,8 +81,8 @@ fun HomeScreen(
                 }
             }
         }
-        if(recent!=null && com.algokids.data.LearningPath.unlocked(prefs,recent,language.name)) item(span={GridItemSpan(maxLineSpan)}) {
-            OutlinedButton(onClick={onCategorySelect(recent)},modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(16.dp)) { Text(label(language,"Devam et: ","Continue: ")+categoryTitle(recent,language)) }
+        if(resume!=null) item(span={GridItemSpan(maxLineSpan)}) {
+            OutlinedButton(onClick={onCategorySelect(resume)},modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(16.dp)) { Text(label(language,"Devam et: ","Continue: ")+categoryTitle(resume,language)) }
         }
         item(span={GridItemSpan(maxLineSpan)}) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
@@ -97,7 +100,7 @@ fun HomeScreen(
             }
         }
         if(storiesVisible) items(sampleStories,key={it.id},span={GridItemSpan(maxLineSpan)}) { story ->
-            Card(onClick={onStorySelect(story)},shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=Color.White)) {
+            Card(onClick={onStorySelect(story)},shape=RoundedCornerShape(20.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surface)) {
                 Row(Modifier.fillMaxWidth().padding(20.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(16.dp)) {
                     Icon(Icons.Default.AutoStories,null,tint=Color(0xFF3D68B5))
                     Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -115,9 +118,16 @@ fun HomeScreen(
                 val number=com.algokids.data.LearningPath.order.indexOf(category.type)+1
                 Text(label(language,"Set $number · ${if(!unlocked) "Kilitli" else if(completed) "Tamamlandı" else "Açık"}","Set $number · ${if(!unlocked) "Locked" else if(completed) "Completed" else "Unlocked"}"),style=MaterialTheme.typography.labelLarge)
                 CategoryCard(category,language,unlocked) { onCategorySelect(category.type) }
-                Text(if(unlocked) label(language,"Başarı: ${com.algokids.data.LearningPath.score(prefs,category.type,language.name)}/100","Score: ${com.algokids.data.LearningPath.score(prefs,category.type,language.name)}/100") else label(language,"Önce önceki eğitim setini tamamla.","Complete the preceding learning set first."),style=MaterialTheme.typography.bodySmall)
+                val progress=com.algokids.data.LearningPath.progress(prefs,category.type,language.name,com.algokids.data.ProgressStore(context).foundationCompleted(category.type,language.name))
+                if(unlocked) Surface(shape=RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surface) {
+                    Column(Modifier.fillMaxWidth().padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Text(label(language,"Tamamlanan: $progress/100","Completed: $progress/100"),fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.primary)
+                        LinearProgressIndicator(progress={progress/100f},modifier=Modifier.fillMaxWidth().height(8.dp))
+                    }
+                } else Text(label(language,"Önce önceki eğitim setini tamamla.","Complete the preceding learning set first."),style=MaterialTheme.typography.bodySmall)
             }
         }
+        item(span={GridItemSpan(maxLineSpan)}) { OutlinedButton(onClick=onParentSettings,modifier=Modifier.fillMaxWidth()) { Text(label(language,"Ebeveynler için · AlgoKids’i değerlendir","For parents · Rate AlgoKids")) } }
         item(span={GridItemSpan(maxLineSpan)}) {TextButton(onClick=onAppearance,modifier=Modifier.testTag("appearance_options")) {Text(label(language,"Görünüm seçenekleri","Appearance"))}}
         item(span={GridItemSpan(maxLineSpan)}) { Text(label(language,"Önce planla → Dene → Sonucu gözle → Çözümünü geliştir","Plan → Try → Observe → Improve"),color=Color(0xFF516078),modifier=Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodySmall) }
     }
@@ -152,7 +162,7 @@ fun CategoryCard(category:CategoryItem,language:AppLanguage,enabled:Boolean=true
         GameCategory.ALPHABET -> label(language,"Harf sırası · Heceler","Letter order · Word parts")
         GameCategory.NUMBERS -> label(language,"Okunuş · Basamak değeri","Reading · Place value")
     }
-    Card(onClick=onClick,enabled=enabled,shape=RoundedCornerShape(22.dp),colors=CardDefaults.cardColors(containerColor=Color.White),modifier=Modifier.fillMaxWidth().heightIn(min=180.dp)) {
+    Card(onClick=onClick,enabled=enabled,shape=RoundedCornerShape(22.dp),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surface),modifier=Modifier.fillMaxWidth().heightIn(min=180.dp)) {
         Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
             Surface(color=category.color.copy(alpha=.1f),shape=RoundedCornerShape(14.dp)) { Icon(category.icon,null,tint=category.color,modifier=Modifier.padding(12.dp).size(28.dp)) }
             Text(category.title,fontWeight=FontWeight.Bold,color=Color(0xFF172B4D),style=MaterialTheme.typography.titleMedium)

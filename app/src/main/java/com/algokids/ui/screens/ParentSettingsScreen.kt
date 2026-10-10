@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.algokids.notifications.ReminderScheduler
 import com.algokids.speech.ChildNarration
-@Composable fun ParentSettingsScreen(language:AppLanguage,tts:TextToSpeech,ready:Boolean,onBack:()->Unit,privacyOptionsRequired:Boolean=false,onPrivacyOptions:()->Unit={},bannerContent:@Composable ()->Unit={}) {
+@Composable fun ParentSettingsScreen(language:AppLanguage,tts:TextToSpeech,ready:Boolean,onBack:()->Unit,privacyOptionsRequired:Boolean=false,onPrivacyOptions:()->Unit={},bannerContent:@Composable ()->Unit={},onAppearance:()->Unit={}) {
  val context=LocalContext.current
  var days by remember { mutableIntStateOf(ReminderScheduler.prefs(context).getInt("reminder_days",2)) }
  var pendingDays by rememberSaveable { mutableIntStateOf(2) }
@@ -58,6 +58,13 @@ import com.algokids.speech.ChildNarration
   if(message.isNotBlank())Text(message)
   Text(label(language,"Hesap gerekmez. İlerleme, yaş tercihi ve hatırlatıcı zamanları cihazda saklanır. Atölye sonunda seyrek Google AdMob reklamları gösterilebilir; reklamlar internet kullanır. Tüm reklam istekleri çocuklara uygun ve kişiselleştirmesiz yapılandırılır.","No account is required. Progress, age preference and reminder times stay on the device. Occasional Google AdMob ads may appear after workshops and use the internet. All ad requests use child treatment and non-personalized settings."))
   if(privacyOptionsRequired)TextButton(onClick=onPrivacyOptions) { Text(label(language,"Reklam gizlilik seçenekleri","Ad privacy options")) }
+  Text(label(language,"AlgoKids’e destek","Support AlgoKids"),style=MaterialTheme.typography.titleLarge)
+  Text(label(language,"Deneyimini Google Play’de paylaşarak uygulamanın gelişmesine yardımcı olabilirsin.","Share your experience on Google Play to help improve the app."))
+  OutlinedButton(onClick={
+      val url=android.net.Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
+      runCatching { context.startActivity(Intent(Intent.ACTION_VIEW,url)) }.onFailure { message=label(language,"Google Play açılamadı.","Google Play could not open.") }
+  }) {Text(label(language,"Google Play’de değerlendir","Rate on Google Play"))}
+  TextButton(onClick=onAppearance) {Text(label(language,"İsteğe bağlı reklam · Görünüm temasını aç","Optional ad · Unlock a colour theme"))}
   Text(label(language,"Sesli anlatım","Narration"),style=MaterialTheme.typography.titleLarge)
   val available=ready && ChildNarration.configure(tts,language)
   var selectedVoice by remember(language) {mutableStateOf(ReminderScheduler.prefs(context).getString("narrator_voice_${language.name}",null))}
@@ -68,12 +75,12 @@ import com.algokids.speech.ChildNarration
     val family=voice.name.removeSuffix("-local")
     OutlinedButton(onClick={
      selectedVoice=family;ChildNarration.choose(language,voice.name,ReminderScheduler.prefs(context))
-     if(ChildNarration.configure(tts,language,story=true))tts.speak(label(language,"Merhaba! Ben senin anlatıcınım. Küçük bir roket, yıldızları keşfetmek için yola çıktı. Önce düşündü, sonra planını adım adım uyguladı.","Hello! I am your narrator. A little rocket set out to explore the stars. First it thought, then it followed its plan one step at a time."),TextToSpeech.QUEUE_FLUSH,null,"voice_choice")
+     if(ChildNarration.configure(tts,language,story=true))tts.speak(label(language,"Merhaba! Birlikte düşünelim ve keşfedelim.","Hello! Let’s think and explore together."),TextToSpeech.QUEUE_FLUSH,null,"voice_choice")
     },modifier=Modifier.fillMaxWidth().testTag("voice_choice_$index")) {Text(label(language,"Anlatıcı ${index+1} · Dinle ve seç","Narrator ${index+1} · Listen and select")+if(selectedVoice==family) " ✓" else "")}
    }
   }
   Text(if(available)label(language,"Bu dil için cihazda çevrimdışı ses hazır. Anlatım sakin ve anlaşılır bir hız kullanır.","An offline voice is ready for this language. Narration uses a calm, clear pace.") else label(language,"Bu dil için çevrimdışı ses paketi bulunamadı. Yanlış dilde ses kullanılmaz; yazılı yönergeler her zaman kullanılabilir.","No offline voice was found for this language. Another language will not be substituted; written instructions are always available."))
-  Button(onClick={speak(tts,label(language,"Merhaba! Birlikte keşfedelim. Önce düşünelim, sonra adım adım deneyelim. Kırk, altmış, yetmiş. Ce, çe, yumuşak ge.","Hello! Let us explore together. Think first, then try one step at a time. Forty, sixty, seventy."),language,true)},enabled=available,modifier=Modifier.testTag("voice_sample")) { Text(label(language,"Örnek anlatımı dinle","Listen to a sample")) }
+  Button(onClick={speak(tts,label(language,"Merhaba! Önce düşün, sonra dene.","Hello! Think first, then try."),language,true)},enabled=available,modifier=Modifier.testTag("voice_sample")) { Text(label(language,"Örnek anlatımı dinle","Listen to a sample")) }
   OutlinedButton(onClick={runCatching { context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }}) { Text(label(language,"Cihazın ses paketlerini aç","Open device voice packages")) }
   bannerContent()
  }

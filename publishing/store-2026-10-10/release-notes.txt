@@ -1,0 +1,14 @@
+<tr-TR>
+Devam et artık tamamlanan setten sonraki sete yönlendiriyor.
+Atölye ilerlemesi daha belirgin; temel oyun tamamlanmaları da gösteriliyor.
+Her göreve adım adım çözüm örnekleri ve günlük 5 otomatik gösterim eklendi.
+İsteğe bağlı ödüllü reklamla 1 ek gösterim alınabilir.
+Tema arka planları ve logo yenilendi. Ses örnekleri kısaltıldı.
+</tr-TR>
+<en-US>
+Continue now moves past completed sets.
+Clearer workshop progress includes foundation activities.
+Step-by-step examples and 5 daily automatic demonstrations added.
+An optional rewarded ad grants one extra demonstration.
+Refreshed theme backgrounds and logo, with shorter voice samples.
+</en-US>

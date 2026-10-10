@@ -15,6 +15,19 @@ class LearningPathTest {
             else -> error("Unexpected preference call ${m.name}")
         }
     } as SharedPreferences
+    @Test fun resumeSkipsCompletedSetAndLegacyProgressShowsCompletion() {
+        val values=mutableMapOf<String,Any>()
+        assertEquals(33,LearningPath.progress(prefs(values),GameCategory.VISUAL,"TR",true))
+        val workshop=ChallengeCatalog.forCategory(GameCategory.VISUAL).first()
+        workshop.rounds.indices.forEach { values[LearningPath.key(workshop.id,"TR",it)]=75 }
+        assertEquals(33,LearningPath.progress(prefs(values),GameCategory.VISUAL,"TR"))
+        ChallengeCatalog.forCategory(GameCategory.VISUAL).forEach { values["${Curriculum.progressKey(it.id)}_done"]=true }
+        assertEquals(100,LearningPath.progress(prefs(values),GameCategory.VISUAL,"TR",true))
+        assertEquals(GameCategory.ATTENTION,LearningPath.nextCategory(prefs(values),"TR",GameCategory.VISUAL))
+        assertEquals(GameCategory.VISUAL,LearningPath.nextCategory(prefs(values),"EN",GameCategory.VISUAL))
+        ChallengeCatalog.all.forEach { values["${Curriculum.progressKey(it.id)}_done"]=true }
+        assertNull(LearningPath.nextCategory(prefs(values),"TR",GameCategory.ALGORITHM))
+    }
     @Test fun existingCompletionsUnlockNextSetWithoutInventingScores() {
         val values=mutableMapOf<String,Any>()
         assertTrue(LearningPath.unlocked(prefs(values),GameCategory.VISUAL,"TR"))
