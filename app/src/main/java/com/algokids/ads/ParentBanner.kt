@@ -13,8 +13,8 @@ import com.algokids.ui.screens.AppLanguage
 import com.algokids.ui.screens.label
 import com.google.android.gms.ads.*
 
-/** One labelled placement, only on the separate parent-information screen. */
-@Composable fun ParentBanner(ads:WorkshopAds,language:AppLanguage) {
+/** One labelled placement per menu screen; never used inside gameplay. */
+@Composable fun ParentBanner(ads:WorkshopAds,language:AppLanguage,placement:String="parent_banner") {
  if(!ads.bannerAllowed)return
  val context=LocalContext.current
  BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -31,13 +31,13 @@ import com.google.android.gms.ads.*
     if(event==androidx.lifecycle.Lifecycle.Event.ON_RESUME)banner.resume()
    }
    owner?.lifecycle?.addObserver(observer)
-   banner.adListener=object:AdListener() {override fun onAdLoaded() {loaded=true};override fun onAdFailedToLoad(error:LoadAdError) {loaded=false} }
+   banner.adListener=object:AdListener() {override fun onAdLoaded() {loaded=true};override fun onAdFailedToLoad(error:LoadAdError) {loaded=false;android.util.Log.w("AlgoKidsAds","Banner load failed ($placement): ${error.domain}/${error.code}")} }
    banner.loadAd(ads.request())
    onDispose {owner?.lifecycle?.removeObserver(observer);banner.destroy()}
   }
-  Column {
+  Column(Modifier.padding(top=12.dp)) {
    if(loaded)Text(label(language,"Reklam","Advertisement"))
-   AndroidView(factory={banner},modifier=Modifier.fillMaxWidth().height(if(loaded) banner.adSize!!.height.dp else 0.dp).testTag("parent_banner"))
+   AndroidView(factory={banner},modifier=Modifier.fillMaxWidth().height(if(loaded) banner.adSize!!.height.dp else 0.dp).testTag(placement))
   }
  }
 }

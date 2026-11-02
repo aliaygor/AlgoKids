@@ -32,7 +32,8 @@ fun HomeScreen(
     onCategorySelect: (GameCategory) -> Unit, onStorySelect: (Story) -> Unit,
     performanceSummary: List<String> = emptyList(), onChallengeSelect: (Challenge) -> Unit = {},
     onParentSettings: () -> Unit = {}, onDailyMission: () -> Unit = {}, storiesVisible: Boolean = false, onStoriesVisibleChange: (Boolean) -> Unit = {},
-    progressRevision:Int=0,onResetProgress:()->Unit={},onAppearance:()->Unit={}
+    progressRevision:Int=0,onResetProgress:()->Unit={},onAppearance:()->Unit={},
+    bannerContent:@Composable ()->Unit={}
 ) {
     var showPrivacy by remember { mutableStateOf(false) }
     var showPerformance by remember { mutableStateOf(false) }
@@ -58,7 +59,8 @@ fun HomeScreen(
     ).sortedBy { com.algokids.data.LearningPath.order.indexOf(it.type) }
     val sampleStories = com.algokids.data.StoryCatalog.ordered(language==AppLanguage.EN)
 
-    LazyVerticalGrid(columns=GridCells.Adaptive(156.dp),modifier=Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding(),contentPadding=PaddingValues(20.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding()) {
+    LazyVerticalGrid(columns=GridCells.Adaptive(156.dp),modifier=Modifier.weight(1f).fillMaxWidth(),contentPadding=PaddingValues(20.dp),horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
         item(span={GridItemSpan(maxLineSpan)}) {
             Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
                 androidx.compose.foundation.Image(androidx.compose.ui.res.painterResource(com.algokids.R.drawable.ic_app_logo),label(language,"AlgoKids logosu","AlgoKids logo"),Modifier.size(48.dp))
@@ -130,6 +132,8 @@ fun HomeScreen(
         item(span={GridItemSpan(maxLineSpan)}) { OutlinedButton(onClick=onParentSettings,modifier=Modifier.fillMaxWidth()) { Text(label(language,"Ebeveynler için · AlgoKids’i değerlendir","For parents · Rate AlgoKids")) } }
         item(span={GridItemSpan(maxLineSpan)}) {TextButton(onClick=onAppearance,modifier=Modifier.testTag("appearance_options")) {Text(label(language,"Görünüm seçenekleri","Appearance"))}}
         item(span={GridItemSpan(maxLineSpan)}) { Text(label(language,"Önce planla → Dene → Sonucu gözle → Çözümünü geliştir","Plan → Try → Observe → Improve"),color=Color(0xFF516078),modifier=Modifier.padding(vertical=12.dp),style=MaterialTheme.typography.bodySmall) }
+    }
+    if(!showReset && !showPrivacy && !showPerformance && !showExit)bannerContent()
     }
     if(showReset) AlertDialog(onDismissRequest={showReset=false},title={Text(label(language,"En baştan başlayalım mı?","Start from the beginning?"))},
         text={Text(label(language,"Türkçe ve İngilizce tüm atölye başarıları, puanlar, temel alıştırmalar, rotalar ve günlük bonuslar sıfırlanacak. Seviye 1'e döneceksin; yalnızca Görsel Algı açık kalacak.","All Turkish and English workshop achievements, scores, foundation exercises, routes and daily bonuses will reset. You will return to level 1 with only Visual Skills unlocked."))},

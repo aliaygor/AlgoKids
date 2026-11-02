@@ -19,6 +19,8 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
     private val retryHandler=android.os.Handler(android.os.Looper.getMainLooper())
     private var interstitialFailures=0
     private var rewardedFailures=0
+    private var consentUpdating=false
+    private var lastConsentAttempt:Long?=null
     private fun retry(rewarded:Boolean) {
         val failures=if(rewarded) rewardedFailures else interstitialFailures
         if(failures>3 || destroyed || disabled)return
@@ -29,6 +31,7 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
         },30_000L * failures.coerceAtLeast(1))
     }
     fun resume() {
+        if(!initialized)start()
         if(sdkReady && !destroyed && !disabled) {
             if(ad==null && !loading)load()
             if(reward==null && !rewardLoading)loadReward()
@@ -61,7 +64,11 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
             .putInt("ads_completed_since",0).putInt("ads_shown_session",0).apply()
     }
     fun start() {
-        if(disabled || destroyed || prefs.getInt("ads_session",1)<=1)return
+        if(disabled || destroyed || initialized || consentUpdating)return
+        val now=SystemClock.elapsedRealtime()
+        if(lastConsentAttempt?.let { now-it<30_000L }==true)return
+        lastConsentAttempt=now
+        consentUpdating=true
         // Configure all users as children, irrespective of the optional learning-age preference.
         MobileAds.setRequestConfiguration(RequestConfiguration.Builder()
             .setAgeRestrictedTreatment(AgeRestrictedTreatment.CHILD)
@@ -70,8 +77,16 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
             .build())
         val params=ConsentRequestParameters.Builder().setTagForUnderAgeOfConsent(true).build()
         consent.requestConsentInfoUpdate(activity,params,{
-            if(!destroyed)UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { initializeIfAllowed() }
-        },{ initializeIfAllowed() })
+            if(!destroyed)UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) {
+                consentUpdating=false
+                if(it!=null)android.util.Log.w("AlgoKidsAds","Consent form failed: ${it.errorCode}")
+                initializeIfAllowed()
+            }
+        },{
+            consentUpdating=false
+            android.util.Log.w("AlgoKidsAds","Consent update failed: ${it.errorCode}")
+            initializeIfAllowed()
+        })
         initializeIfAllowed()
     }
     private fun initializeIfAllowed() {
@@ -89,7 +104,7 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
         rewardLoading=true
         RewardedAd.load(activity,BuildConfig.ADMOB_REWARDED_ID,request(),object:RewardedAdLoadCallback() {
             override fun onAdLoaded(value:RewardedAd) {rewardLoading=false;rewardedFailures=0;if(!destroyed) {reward=value;rewardLoadedAt=SystemClock.elapsedRealtime()} }
-            override fun onAdFailedToLoad(error:LoadAdError) {rewardLoading=false;reward=null;rewardedFailures++;retry(true)}
+            override fun onAdFailedToLoad(error:LoadAdError) {android.util.Log.w("AlgoKidsAds","Rewarded load failed: ${error.domain}/${error.code}");rewardLoading=false;reward=null;rewardedFailures++;retry(true)}
         })
     }
     /** Explicit opt-in; only the SDK's earned callback grants the selected reward, never learning progress. */
@@ -123,7 +138,7 @@ class WorkshopAds(private val activity:ComponentActivity,freshSession:Boolean) {
         val request=AdRequest.Builder().addNetworkExtrasBundle(com.google.ads.mediation.admob.AdMobAdapter::class.java,extra).build()
         InterstitialAd.load(activity,BuildConfig.ADMOB_INTERSTITIAL_ID,request,object:InterstitialAdLoadCallback() {
             override fun onAdLoaded(value:InterstitialAd) { loading=false;interstitialFailures=0;if(!destroyed) { ad=value;loadedAt=SystemClock.elapsedRealtime() } }
-            override fun onAdFailedToLoad(error:LoadAdError) { loading=false;ad=null;interstitialFailures++;retry(false) }
+            override fun onAdFailedToLoad(error:LoadAdError) { android.util.Log.w("AlgoKidsAds","Interstitial load failed: ${error.domain}/${error.code}");loading=false;ad=null;interstitialFailures++;retry(false) }
         })
     }
     fun afterWorkshop(id:String,stopAudio:()->Unit,continueGame:()->Unit) {

@@ -92,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     else -> HomeScreen(
+                        bannerContent={com.algokids.ads.ParentBanner(workshopAds,language,"home_banner")},
                         onAppearance={appearanceVisible=true},
                         progressRevision=progressRevision,onResetProgress={
                             sharedTts.stop(); sessions.values.forEach { it.restart() };store.resetLearning();progressRevision++
