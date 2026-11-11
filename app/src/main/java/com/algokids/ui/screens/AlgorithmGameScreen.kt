@@ -84,7 +84,7 @@ fun AlgorithmGameScreen(
         LinearProgressIndicator(progress = { (levelIndex + 1f) / levels.size }, modifier = Modifier.fillMaxWidth())
         Text(label(language, "Bölüm ${levelIndex + 1} / ${levels.size} · Planlama", "Level ${levelIndex + 1} / ${levels.size} · Planning"), style = MaterialTheme.typography.labelLarge)
         Text(label(language, level.titleTr, level.titleEn), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(label(language, "Her ok = 1 kare. Başlangıç karesi adım değildir. Engelleri aşmadan ${level.maxCommands} adımda hedefe ulaş.", "Each arrow = 1 square. The starting square is not a step. Reach the goal in ${level.maxCommands} steps without hitting a wall."), style = MaterialTheme.typography.bodyLarge)
+        Text(label(language, "Her ok bir adım. Başlangıç sayılmaz. Duvara çarpmadan en çok ${level.maxCommands} adımda hedefe ulaş.", "Each arrow is one step. The start does not count. Reach the goal in ${level.maxCommands} steps without hitting a wall."), style = MaterialTheme.typography.bodyMedium)
         Surface(shape = RoundedCornerShape(20.dp), color = Color.White, modifier = Modifier.widthIn(max = 440.dp).fillMaxWidth()) {
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 repeat(level.size) { y ->

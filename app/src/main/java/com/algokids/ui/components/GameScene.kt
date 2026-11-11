@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.algokids.ui.screens.AppLanguage
 import com.algokids.ui.screens.label
 
@@ -39,7 +40,12 @@ fun GameScene(
             }
             Text(title,style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold,color=Color(0xFF172B4D),textAlign=TextAlign.Center)
             if(scoreText.isNotBlank()) Text(scoreText,style=MaterialTheme.typography.labelLarge,color=Color(0xFF516078))
-            Text(instruction,style=MaterialTheme.typography.bodyLarge,color=Color(0xFF334155),textAlign=TextAlign.Center)
+            Surface(Modifier.fillMaxWidth(), shape=RoundedCornerShape(18.dp), color=Color(0xFFE7F4F1)) {
+                Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Text("🎯", fontSize = 20.sp)
+                    Text(instruction, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = Color(0xFF24575A), textAlign = TextAlign.Start)
+                }
+            }
             Surface(Modifier.fillMaxWidth().weight(1f),shape=RoundedCornerShape(24.dp),color=Color.White,tonalElevation=1.dp) {
                 Column(Modifier.padding(12.dp),horizontalAlignment=Alignment.CenterHorizontally) { content() }
             }

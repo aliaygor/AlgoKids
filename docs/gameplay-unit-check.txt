@@ -1,0 +1,53 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:generateDebugResValues
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:processDebugNavigationResources
+> Task :app:javaPreCompileDebug
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compileDebugNavigationResources
+> Task :app:checkDebugAarMetadata
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:generateDebugRFile
+> Task :app:processDebugMainManifest
+> Task :app:mergeDebugResources
+> Task :app:processDebugManifest
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:compileDebugKotlin
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ads/ParentBanner.kt:24:21 'static fun getCurrentOrientationAnchoredAdaptiveBannerAdSize(p0: Context, p1: Int): AdSize' is deprecated. Deprecated in Java.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/components/GameScene.kt:35:65 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/components/GameScene.kt:37:91 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/components/GameScene.kt:37:119 'val Icons.Filled.VolumeOff: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeOff.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/GameScreen.kt:48:8 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/GameScreen.kt:350:31 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/GameScreen.kt:358:32 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/HomeScreen.kt:55:83 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/LearningScreen.kt:106:40 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/LearningScreen.kt:139:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/LearningScreen.kt:152:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/PatternGameScreen.kt:47:24 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/PatternGameScreen.kt:159:36 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/StoryScreen.kt:104:60 'val Icons.Filled.VolumeUp: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeUp.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/StoryScreen.kt:104:88 'val Icons.Filled.VolumeOff: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.VolumeOff.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/StoryScreen.kt:172:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///C:/Users/alica/AndroidStudioProjects/AlgoKids/app/src/main/java/com/algokids/ui/screens/StoryScreen.kt:187:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
+> Task :app:compileDebugUnitTestKotlin
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processDebugUnitTestJavaRes
+> Task :app:testDebugUnitTest
+
+BUILD SUCCESSFUL in 1m 6s
+27 actionable tasks: 27 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html

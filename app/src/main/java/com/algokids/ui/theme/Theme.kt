@@ -6,10 +6,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val AlgoColors = lightColorScheme(
-    primary=Color(0xFF315DB0), onPrimary=Color.White,
-    secondary=Color(0xFF308263), onSecondary=Color.White,
-    tertiary=Color(0xFF8256A3), background=Color(0xFFF4F6FC),
-    surface=Color.White, onSurface=Color(0xFF172B4D), onBackground=Color(0xFF172B4D)
+    primary=Color(0xFF167C80), onPrimary=Color.White,
+    secondary=Color(0xFFE77952), onSecondary=Color.White,
+    tertiary=Color(0xFF7462CE), background=Color(0xFFFFF8ED),
+    surface=Color.White, onSurface=Color(0xFF20334A), onBackground=Color(0xFF20334A),
+    surfaceVariant=Color(0xFFEAF5F1), onSurfaceVariant=Color(0xFF40566B),
+    primaryContainer=Color(0xFFD7F2EA), onPrimaryContainer=Color(0xFF0B5557),
+    secondaryContainer=Color(0xFFFFE4D6), onSecondaryContainer=Color(0xFF78351F),
+    tertiaryContainer=Color(0xFFEAE5FF), onTertiaryContainer=Color(0xFF45368F)
 )
 
 @Composable

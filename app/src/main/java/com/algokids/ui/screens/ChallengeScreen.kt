@@ -7,7 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,23 +44,53 @@ fun categoryTitle(category: GameCategory, language: AppLanguage) = when (categor
 
 @Composable
 fun CategoryScreen(category: GameCategory, language: AppLanguage, onClassic: () -> Unit, onChallenge: (Challenge) -> Unit, onBack: () -> Unit) {
-    val prefs = LocalContext.current.getSharedPreferences("algokids_progress", Context.MODE_PRIVATE)
+    val context = LocalContext.current
+    val prefs = remember(context) { context.getSharedPreferences("algokids_progress", Context.MODE_PRIVATE) }
+    val solved = LearningPath.solved(prefs, category, language.name)
+    val total = LearningPath.total(category)
+    val completion = LearningPath.progress(prefs, category, language.name, com.algokids.data.ProgressStore(context).foundationCompleted(category, language.name))
+    val categoryEmoji = when (category) {
+        GameCategory.VISUAL -> "🎨"
+        GameCategory.NUMERICAL, GameCategory.NUMBERS -> "🔢"
+        GameCategory.LOGIC -> "🧩"
+        GameCategory.ATTENTION -> "🔎"
+        GameCategory.MEMORY -> "🧠"
+        GameCategory.AUDIOLOGY -> "🎵"
+        GameCategory.GEOMETRY -> "🔷"
+        GameCategory.ALPHABET -> "🔤"
+        GameCategory.ALGORITHM -> "🧭"
+    }
     BackHandler(onBack = onBack)
     LazyColumn(
         Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding(),
-        contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        item { TextButton(onClick = onBack) { Text(label(language, "‹ Ana sayfa", "‹ Home")) } }
-        item { Text(categoryTitle(category, language), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold) }
         item {
-            val solved=LearningPath.solved(prefs,category,language.name)
-            val total=LearningPath.total(category)
-            val completion=LearningPath.progress(prefs,category,language.name,com.algokids.data.ProgressStore(LocalContext.current).foundationCompleted(category,language.name))
-            LinearProgressIndicator(progress={completion/100f},modifier=Modifier.fillMaxWidth().height(10.dp))
-            Text(label(language,"Eğitim seti: $solved/$total görev · Tamamlanan: $completion/100","Learning set: $solved/$total missions · Completed: $completion/100"))
-            Text(label(language,"Bütün puanlı atölyeleri tamamlayınca sonraki set açılır. Her yanlış kontrol, o görevin ilk değerlendirme puanından 25 düşürür (en az 25). Temel alıştırmalar serbest pratik içindir.","Finish every scored workshop to unlock the next set. Each incorrect check reduces that mission’s first assessment score by 25 (minimum 25). Foundation exercises are optional practice."),style=MaterialTheme.typography.bodySmall)
+            TextButton(onClick = onBack, contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)) { Text(label(language, "‹ Ana sayfa", "‹ Home")) }
+            Card(
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                        Surface(shape = androidx.compose.foundation.shape.CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f), modifier = Modifier.size(68.dp)) {
+                            Box(contentAlignment = Alignment.Center) { Text(categoryEmoji, fontSize = 36.sp) }
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(label(language, "KEŞİF ALANI", "DISCOVERY ZONE"), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.ExtraBold)
+                            Text(categoryTitle(category, language), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text(label(language, "Hazır ol, dene ve yeni yollar keşfet!", "Get ready to play and discover new ways!"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                    }
+                    LinearProgressIndicator(progress = { completion / 100f }, modifier = Modifier.fillMaxWidth().height(9.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(label(language, "$solved / $total görev", "$solved / $total missions"), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                        Text(label(language, "⭐ $completion / 100", "⭐ $completion / 100"), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
         }
-        item { Text(label(language, "Her atölye farklı bir çözüm yolu çalıştırır. Görevler başlangıçtan meydan okumaya ilerler.", "Each workshop practises a different solution process. Missions progress from a starter to a challenge.")) }
         if (Curriculum.hasFoundation(category)) item {
             val title = when (category) {
                 GameCategory.ALGORITHM -> label(language, "Rota atölyesi", "Route workshop")
@@ -71,33 +101,53 @@ fun CategoryScreen(category: GameCategory, language: AppLanguage, onClassic: () 
                 else -> label(language, "Şekillerin özellikleri", "Shape properties")
             }
             val foundationDone=com.algokids.data.ProgressStore(LocalContext.current).foundationCompleted(category,language.name)
-            WorkshopCard(title, label(language, "Temel alıştırma · Set geçişi için aşağıdaki puanlı atölyeleri tamamla", "Foundation practice · Complete the scored workshops below to unlock the next set"),
-                if(foundationDone) label(language,"✓ Temel alıştırma tamamlandı","✓ Foundation practice completed") else label(language, "Başla / devam et", "Start / continue"), onClassic)
+            WorkshopCard(
+                title = title,
+                detail = label(language, "Atölyelere başlamadan önce kısa bir ısınma oyunu!", "A quick warm-up game before the workshops!"),
+                action = if (foundationDone) label(language, "Tekrar oyna", "Play again") else label(language, "Isınmaya başla", "Start warm-up"),
+                badge = "✨", accent = Color(0xFFFFD166), onClick = onClassic
+            )
         }
-        items(ChallengeCatalog.forCategory(category).map { ChallengeLocalization.localize(it,language==AppLanguage.EN) }, key = { it.id }) { challenge ->
+        item {
+            Text(label(language, "Maceralar", "Adventures"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+            Text(label(language, "Birini seç; her görevde yeni bir şey keşfedeceksin.", "Choose one and discover something new in every mission."), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        itemsIndexed(ChallengeCatalog.forCategory(category).map { ChallengeLocalization.localize(it,language==AppLanguage.EN) }, key = { _, challenge -> challenge.id }) { itemIndex, challenge ->
             val key = Curriculum.progressKey(challenge.id, language.name)
             val completed = LearningPath.workshopCompleted(prefs,challenge,language.name)
             val round = prefs.getInt("${key}_round", 0)
             WorkshopCard(
-                label(language, challenge.titleTr, challenge.titleEn),
-                label(language, challenge.skillTr, challenge.skillEn) + "\n" + label(language, "${challenge.rounds.size} görev · Farklı çözüm mekanikleri", "${challenge.rounds.size} missions · Distinct solution mechanics"),
-                if (completed) label(language, "✓ Tamamlandı · Tekrar oyna", "✓ Completed · Play again")
+                title = label(language, challenge.titleTr, challenge.titleEn),
+                detail = label(language, challenge.skillTr, challenge.skillEn) + "  ·  " + label(language, "${challenge.rounds.size} görev", "${challenge.rounds.size} missions"),
+                action = if (completed) label(language, "Tamamlandı · Yeniden oyna", "Complete · Play again")
                 else if (round > 0) label(language, "Devam et · ${round + 1}. görev", "Continue · Mission ${round + 1}")
-                else label(language, "Atölyeye başla", "Start workshop"),
-                { onChallenge(challenge) }
+                else label(language, "Haydi başlayalım!", "Let’s play!"),
+                badge = listOf("🧠", "🔍", "🚀", "🌈", "🪄")[itemIndex % 5],
+                accent = listOf(Color(0xFFB8E7D5), Color(0xFFFFD9A8), Color(0xFFC9D6FF), Color(0xFFFFC9D8), Color(0xFFDCCBFF))[itemIndex % 5],
+                onClick = { onChallenge(challenge) }
             )
         }
-        item { Text(label(language, "Birlikte oynarken: “Bu adımı neden seçtin?” ve “Başka bir geçerli çözüm var mı?” diye sorun.", "When playing together ask: ‘Why did you choose this step?’ and ‘Is there another valid solution?’"), style = MaterialTheme.typography.bodySmall) }
+        item {
+            Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.tertiaryContainer) {
+                Text(label(language, "Birlikte oynarken: “Bunu nasıl buldun?” diye sorup düşünme yolunu anlatmasını teşvik edin.", "When playing together, ask “How did you figure that out?” and encourage them to explain their thinking."), Modifier.fillMaxWidth().padding(16.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
+            }
+        }
     }
 }
 
 @Composable
-private fun WorkshopCard(title: String, detail: String, action: String, onClick: () -> Unit) {
-    Card(onClick = onClick, shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(title, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-            Text(detail, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF516078))
-            Text(action, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 8.dp))
+private fun WorkshopCard(title: String, detail: String, action: String, badge: String, accent: Color, onClick: () -> Unit) {
+    Card(onClick = onClick, shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Surface(shape = RoundedCornerShape(20.dp), color = accent.copy(alpha = 0.48f), modifier = Modifier.size(62.dp)) {
+                Box(contentAlignment = Alignment.Center) { Text(badge, fontSize = 32.sp) }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text(title, fontWeight = FontWeight.ExtraBold, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(action, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+            }
+            Text("›", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
         }
     }
 }
@@ -120,9 +170,8 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
     var remaining by remember {mutableIntStateOf(allowance.remaining())}
     var autoplay by rememberSaveable(challenge.id,language,index) {mutableStateOf(false)}
     var rewardConfirm by remember {mutableStateOf(false)}
-    var rewardTick by remember {mutableIntStateOf(0)}
-    LaunchedEffect(ads) {while(true) {kotlinx.coroutines.delay(1000);rewardTick++;remaining=allowance.remaining()}}
     var example by rememberSaveable(challenge.id, language, index) { mutableStateOf(false) }
+    var showGuidance by rememberSaveable(challenge.id, index) { mutableStateOf(false) }
     var solutionStep by rememberSaveable(challenge.id, language, index) { mutableIntStateOf(0) }
     var transcript by rememberSaveable(challenge.id, language, index) { mutableStateOf(false) }
     var response by rememberSaveable(challenge.id, language, index) { mutableStateOf(arrayListOf<String>()) }
@@ -156,9 +205,12 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
     LaunchedEffect(challenge.id, index, isTtsReady, isSoundEnabled, language) { narrate() }
 
     Column(
-        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding().verticalScroll(rememberScrollState()).padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding()
     ) {
+      Column(
+        Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+      ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onBack) { Text(label(language, "‹ Atölyeler", "‹ Workshops")) }
             Spacer(Modifier.weight(1f))
@@ -181,12 +233,23 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
             Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(signalWords(label(language, round.promptTr, round.promptEn), language), style = MaterialTheme.typography.titleMedium)
                 val guidance = when(challenge.mechanic) {
-                    LearningMechanic.LAYER_INTEGRATION -> label(language,"İki katmanı üst üste koyduğunu düşün. Herhangi bir katmanda mavi olan kareyi alttaki boş panoda seç. Aynı yerdeki iki mavi kareyi bir kez seç.","Imagine placing the two layers on top of each other. On the blank board, select every square that is blue in either layer. Select overlapping blue squares only once.")
-                    LearningMechanic.MISSING_MOSAIC -> label(language,"Soldaki tam modeli sağdaki eksik modelle karşılaştır. Yalnızca tam modelde olup eksik modelde olmayan kareleri alttaki boş panoda seç.","Compare the full model on the left with the incomplete model on the right. On the blank board below, select only the squares missing from the incomplete model.")
-                    LearningMechanic.RESPONSE_INHIBITION, LearningMechanic.RULE_SWITCHING -> label(language,"Her karttan önce üstteki kuralı oku. Kart kurala uyuyorsa Seç, uymuyorsa Geç düğmesine dokun. Kural değişebilir; her kartta yeniden bak.","Read the rule above each card. Tap Select if the card matches, or Skip if it does not. The rule may change; check it for every card.")
+                    LearningMechanic.LAYER_INTEGRATION -> label(language,"İki panodaki mavi kareleri birleştir. Ortak kareyi bir kez seç.","Combine the blue squares from both boards. Select an overlapping square once.")
+                    LearningMechanic.MISSING_MOSAIC -> label(language,"Tam modelde olup eksik panoda olmayan kareleri seç.","Select the squares in the full model that are missing from the other board.")
+                    LearningMechanic.RESPONSE_INHIBITION, LearningMechanic.RULE_SWITCHING -> label(language,"Her kartta kuralı kontrol et: uyuyorsa Seç, değilse Geç.","Check the rule for each card: Select if it matches, otherwise Skip.")
                     else -> ""
                 }
-                if(guidance.isNotEmpty()) Text(guidance,style=MaterialTheme.typography.bodyMedium)
+                if (guidance.isNotEmpty()) {
+                    TextButton(
+                        onClick = { showGuidance = !showGuidance },
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 2.dp),
+                        modifier = Modifier.testTag("challenge_hint_toggle")
+                    ) {
+                        Text(if (showGuidance) label(language, "İpucunu gizle", "Hide hint") else label(language, "Kısa ipucu", "Quick hint"))
+                    }
+                    if (showGuidance) Surface(color = MaterialTheme.colorScheme.tertiaryContainer, shape = RoundedCornerShape(14.dp)) {
+                        Text(guidance, Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                    }
+                }
                 TextButton(onClick = { narrate() }) { Text(if (listening) label(language, "Yönergeyi tekrar dinle", "Replay instruction") else label(language, "Yönergeyi dinle", "Read instruction")) }
                 if (listening) {
                     TextButton(onClick = { transcript = !transcript }, modifier = Modifier.testTag("transcript")) { Text(label(language, "Yazılı yönergeyi göster / gizle", "Show / hide written instruction")) }
@@ -265,17 +328,17 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
         if (feedback.isNotEmpty()) Surface(color = if (correct) Color(0xFFD7F4EA) else Color(0xFFFFEFD8), shape = RoundedCornerShape(16.dp)) {
             Text(feedback, Modifier.fillMaxWidth().padding(16.dp).testTag("feedback"))
         }
-        Text(label(language,"Bugün $remaining otomatik gösterim hakkın var. Adımları kendin incelemek her zaman ücretsiz.","Automatic demonstrations left today: $remaining. Explore the steps for free."),style=MaterialTheme.typography.bodySmall)
-        Button(onClick={if(allowance.use()) {remaining=allowance.remaining();tts.stop();autoplay=true}},enabled=remaining>0 && !autoplay,modifier=Modifier.fillMaxWidth().testTag("automatic_solution")) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+          TextButton(onClick={if(allowance.use()) {remaining=allowance.remaining();tts.stop();autoplay=true}},enabled=remaining>0 && !autoplay,modifier=Modifier.weight(1f).testTag("automatic_solution")) {
             Text(label(language,"Çözümü adım adım oynat","Play the solution step by step"))
+          }
+          OutlinedButton(onClick={autoplay=false;example=!example;solutionStep=0;tts.stop()},modifier=Modifier.weight(1f).testTag("example_solution")) {
+            Text(if(example) label(language,"Örneği gizle","Hide example") else label(language,"Nasıl çözülür?","How to solve?"))
+          }
         }
         if(remaining==0 && ads!=null) {
-            OutlinedButton(onClick={rewardConfirm=true},enabled=rewardTick.let {ads.rewardReady},modifier=Modifier.fillMaxWidth().testTag("reward_solution")) {
-                Text(label(language,"İsteğe bağlı reklam · 1 ek gösterim","Optional ad · 1 extra demonstration"))
-            }
-            if(!ads.rewardReady)Text(label(language,"Şu an reklam hazır değil. Ücretsiz adımları inceleyebilirsin.","No ad is ready right now. You can explore the free steps."))
+            RewardSolutionButton(language, ads, onClick = { rewardConfirm = true })
         }
-        OutlinedButton(onClick={autoplay=false;example=!example;solutionStep=0;tts.stop()},modifier=Modifier.fillMaxWidth().testTag("example_solution")) { Text(label(language,"Nasıl çözülür? · Adım adım göster","How to solve · Show steps")) }
         if(example) Surface(shape=RoundedCornerShape(20.dp),color=MaterialTheme.colorScheme.surfaceVariant) {
             Column(Modifier.fillMaxWidth().padding(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                 Text(label(language,"Birlikte inceleyelim","Let’s explore together"),fontWeight=FontWeight.Bold)
@@ -291,7 +354,9 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
                 else Text(label(language,"Şimdi kendi panonda dene. Örneği incelemek puan veya tamamlanma kazandırmaz.","Now try on your own board. Viewing the example does not award points or completion."))
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+      }
+      if (!finished) Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OutlinedButton(onClick = { response = ArrayList(response.dropLast(1)); feedback = "" }, enabled = !correct && response.isNotEmpty(), modifier = Modifier.weight(1f).testTag("undo")) { Text(label(language, "Geri al", "Undo")) }
             Button(
                 onClick = {
@@ -305,27 +370,28 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
                         val examKey=LearningPath.key(challenge.id,language.name,index)
                         if(!prefs.contains(examKey)) prefs.edit().putInt(examKey,LearningPath.earned(prefs.getInt("${progressKey}_attempts_$index",0))).apply()
                         if(index==challenge.rounds.lastIndex) prefs.edit().putBoolean("${progressKey}_done",true).putInt("${progressKey}_round",0).apply()
-                        feedback = label(language, "Çözdün! ${round.explanationTr}", "Solved! ${round.explanationEn}")
+                        feedback = label(language, "Çözdün! Harika iş!", "Solved! Great work!")
                         if (isTtsReady) speak(tts, label(language,"Çözdün!","Solved!"), language, isSoundEnabled)
                     } else {
                         mistakes++
                         val attemptsKey="${progressKey}_attempts_$index"
                         prefs.edit().putInt(attemptsKey,prefs.getInt(attemptsKey,0)+1).apply()
                         feedback = label(language, "Henüz olmadı. " + when {
-                            gridMode -> "Satır ve sütunları karşılaştır; fazla veya eksik bir kare var mı?"
-                            scan -> "Her kararı o adımda görünen hedefe göre yeniden incele."
-                            ordered -> "Adımların sırasını, tekrar sayısını ve bütün ipuçlarını kontrol et."
-                            else -> "Bütün ipuçlarını birlikte kontrol et."
+                            gridMode -> "Satırları ve sütunları karşılaştır. Eksik kareyi bul."
+                            scan -> "Kartı, o anda görünen hedefle karşılaştır."
+                            ordered -> "Sırayı ve tekrar eden kartları kontrol et."
+                            else -> "İpuçlarına bir kez daha bak."
                         }, "Not yet. " + when {
-                            gridMode -> "Compare rows and columns. Are any squares missing or extra?"
-                            scan -> "Check each decision against the target shown at that step."
-                            ordered -> "Check the order, repetition counts, and all the clues."
-                            else -> "Check all the clues together."
+                            gridMode -> "Compare the rows and columns. Find the missing square."
+                            scan -> "Compare the card with the target shown now."
+                            ordered -> "Check the order and repeated cards."
+                            else -> "Take another look at the clues."
                         })
                     }
                 }, enabled = correct || (!preview && fullResponse), modifier = Modifier.weight(1f).testTag("check")
             ) { Text(if (correct) label(language, "Devam et", "Continue") else label(language, "Kontrol et", "Check")) }
         }
+      }
     }
     if(rewardConfirm && ads!=null) AlertDialog(onDismissRequest={rewardConfirm=false},
         title={Text(label(language,"Ödüllü reklam","Rewarded advertisement"))},
@@ -333,6 +399,21 @@ fun ChallengeScreen(challenge: Challenge, language: AppLanguage, tts: TextToSpee
         confirmButton={TextButton(onClick={rewardConfirm=false;ads.rewardSolution({tts.stop()}) {remaining=allowance.remaining()}},modifier=Modifier.testTag("confirm_solution_reward")) {Text(label(language,"Reklamı başlat","Start advertisement"))}},
         dismissButton={TextButton(onClick={rewardConfirm=false}) {Text(label(language,"Vazgeç","Cancel"))}})
 
+}
+
+@Composable
+private fun RewardSolutionButton(language: AppLanguage, ads: com.algokids.ads.WorkshopAds, onClick: () -> Unit) {
+    var eligibilityTick by remember(ads) { mutableIntStateOf(0) }
+    LaunchedEffect(ads) {
+        while (true) {
+            kotlinx.coroutines.delay(15_000)
+            eligibilityTick++
+        }
+    }
+    val ready = remember(ads, eligibilityTick) { ads.rewardReady }
+    TextButton(onClick = onClick, enabled = ready, modifier = Modifier.fillMaxWidth().testTag("reward_solution")) {
+        Text(label(language, "İsteğe bağlı reklam · 1 ek gösterim", "Optional ad · 1 extra demonstration"))
+    }
 }
 
 @Composable

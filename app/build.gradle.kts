@@ -27,8 +27,8 @@ android {
         applicationId = "com.algokids"
         minSdk = 24
         targetSdk = 36
-        versionCode = 9
-        versionName = "2.2"
+        versionCode = 10
+        versionName = "2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string","admob_app_id",admobAppId)
@@ -39,7 +39,7 @@ android {
             buildConfigField("boolean","REWARDED_ENABLED","true")
             buildConfigField("boolean","BANNER_ENABLED","true")
             buildConfigField("String","ADMOB_REWARDED_ID","\"ca-app-pub-3940256099942544/5224354917\"")
-            buildConfigField("String","ADMOB_BANNER_ID","\"ca-app-pub-3940256099942544/6300978111\"")
+            buildConfigField("String","ADMOB_BANNER_ID","\"ca-app-pub-3940256099942544/9214589741\"")
             buildConfigField("boolean","ADS_ENABLED","true")
             buildConfigField("String","ADMOB_INTERSTITIAL_ID","\"ca-app-pub-3940256099942544/1033173712\"")
             resValue("string","admob_app_id","ca-app-pub-3940256099942544~3347511713")

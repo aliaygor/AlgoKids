@@ -7,23 +7,33 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class ContentRepository(private val context: Context) {
+    @Volatile private var cachedContent: List<GameContent>? = null
+    @Volatile private var cachedById: Map<String, GameContent>? = null
 
     fun loadAllContent(): List<GameContent> {
-        return try {
-            val json = context.assets
-                .open("educational_content.json")
-                .bufferedReader()
-                .use { it.readText() }
+        cachedContent?.let { return it }
+        return synchronized(this) {
+            cachedContent ?: try {
+                val json = context.assets
+                    .open("educational_content.json")
+                    .bufferedReader()
+                    .use { it.readText() }
 
-            val listType = object : TypeToken<List<GameContent>>() {}.type
-            Gson().fromJson(json, listType)
-        } catch (e: Exception) {
-            emptyList()
+                val listType = object : TypeToken<List<GameContent>>() {}.type
+                Gson().fromJson<List<GameContent>>(json, listType) ?: emptyList()
+            } catch (e: Exception) {
+                emptyList()
+            }.also { cachedContent = it }
         }
     }
 
     fun getContentByCategory(category: GameCategory): List<GameContent> {
-        val byId = loadAllContent().associateBy { it.id }
+        val byId = cachedById ?: synchronized(this) {
+            cachedById ?: loadAllContent()
+                .mapNotNull { content -> content.id?.let { id -> id to content } }
+                .toMap()
+                .also { cachedById = it }
+        }
         return Curriculum.foundationIds(category).mapNotNull { byId[it] }
     }
 

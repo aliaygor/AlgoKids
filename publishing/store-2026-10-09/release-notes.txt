@@ -1,0 +1,23 @@
+Mevcut kaynak: versionCode 7 / versionName 2.0
+Yalnızca mağaza görseli, açıklama ve etiket değişikliği yeni AAB gerektirmez.
+Yeni AAB yüklenirse versionCode tüm Play kanallarındaki en yüksek koddan büyük olmalıdır. En yüksek kod 7 ise yeni kod 8 olur; sürüm adı için 2.0.1 kullanılabilir.
+
+<tr-TR>
+AlgoKids 2.0 ile yeni düşünme atölyelerini keşfet!
+• Rota planlama, döngüler ve hata ayıklama görevleri
+• Mantık, hafıza, dikkat ve dinleme etkinlikleri
+• Günlük görevler ve cihazında saklanan ilerleme
+• Yenilenen ana sayfa ve adım adım rota animasyonu
+• Türkçe içerik düzeltmeleri ve Android 16 uyumluluğu
+Bu sürüm reklam içerir.
+</tr-TR>
+
+<en-US>
+Explore new thinking workshops in AlgoKids 2.0!
+• Route planning, loops and debugging challenges
+• Logic, memory, attention and listening activities
+• Daily tasks and progress saved on your device
+• A refreshed home screen and step-by-step route animation
+• Turkish content improvements and Android 16 support
+This version contains ads.
+</en-US>

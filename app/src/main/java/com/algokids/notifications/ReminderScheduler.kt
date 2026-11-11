@@ -19,12 +19,16 @@ object ReminderScheduler {
   if(Build.VERSION.SDK_INT>=26)c.getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL,"AlgoKids",NotificationManager.IMPORTANCE_DEFAULT).apply { description="Optional learning reminders / İsteğe bağlı öğrenme hatırlatmaları";enableVibration(false);setSound(null,null) })
  }
  fun configure(c:Context,days:Int) {
-  prefs(c).edit().putInt("reminder_days",days.coerceIn(0,2)).apply();channel(c);schedule(c)
+  prefs(c).edit().putInt("reminder_days",days.coerceIn(0,3)).putBoolean("reminder_frequency_v2",true).apply();channel(c);schedule(c)
   if(days==0)NotificationManagerCompat.from(c).cancel(ID)
  }
  fun visit(c:Context) {
   val p=prefs(c)
-  if(!p.getBoolean("automatic_reminders_v1",false))p.edit().putInt("reminder_days",2).putBoolean("automatic_reminders_v1",true).apply()
+  if(!p.getBoolean("reminder_frequency_v2",false)) {
+   // Older app versions defaulted to daily reminders. Move that legacy default to a gentler two-day interval.
+   val legacyDays=p.getInt("reminder_days",2)
+   p.edit().putInt("reminder_days",if(legacyDays==1) 2 else legacyDays.coerceIn(0,3)).putBoolean("reminder_frequency_v2",true).apply()
+  }
   channel(c);p.edit().putLong("last_visit",System.currentTimeMillis()).apply();NotificationManagerCompat.from(c).cancel(ID);schedule(c)
  }
  fun schedule(c:Context) {

@@ -9,14 +9,21 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import com.algokids.data.ContentRepository
 import com.algokids.data.ProgressStore
 import com.algokids.game.model.*
 import com.algokids.ui.screens.*
 import com.algokids.ui.theme.AlgoKidsTheme
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     private lateinit var workshopAds:com.algokids.ads.WorkshopAds
@@ -28,9 +35,22 @@ class MainActivity : ComponentActivity() {
         return category
     }
     override fun onStart() { super.onStart();if(::workshopAds.isInitialized)workshopAds.resume(); com.algokids.notifications.ReminderScheduler.visit(this) }
-    override fun onNewIntent(intent: android.content.Intent) { super.onNewIntent(intent);setIntent(intent);com.algokids.notifications.ReminderScheduler.visit(this);reminderCategory=consumeReminder(intent) }
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if(BuildConfig.DEBUG && intent.action==android.content.Intent.ACTION_MAIN && intent.hasCategory(android.content.Intent.CATEGORY_LAUNCHER)) {
+            getSharedPreferences("algokids_progress",Context.MODE_PRIVATE).edit().remove("ads_disabled_for_tests").apply()
+            if(::workshopAds.isInitialized) workshopAds.resume()
+        }
+        com.algokids.notifications.ReminderScheduler.visit(this)
+        reminderCategory=consumeReminder(intent)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if(BuildConfig.DEBUG && savedInstanceState==null) {
+            // Instrumentation tests use this temporary switch. Never let it persistently suppress debug test ads on a fresh launch.
+            getSharedPreferences("algokids_progress",Context.MODE_PRIVATE).edit().remove("ads_disabled_for_tests").apply()
+        }
         workshopAds=com.algokids.ads.WorkshopAds(this,savedInstanceState==null)
         reminderCategory=consumeReminder(intent)
         val reminderPrefs=com.algokids.notifications.ReminderScheduler.prefs(this)
@@ -48,6 +68,7 @@ class MainActivity : ComponentActivity() {
                 var selectedCategory by rememberSaveable { mutableStateOf<GameCategory?>(null) }
                 var parentSettings by rememberSaveable { mutableStateOf(false) }
                 var appearanceVisible by rememberSaveable { mutableStateOf(false) }
+                var appearanceReturnToParent by rememberSaveable { mutableStateOf(false) }
                 var dailyVisible by rememberSaveable { mutableStateOf(false) }
                 var classic by rememberSaveable { mutableStateOf(false) }
                 var challengeId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -67,14 +88,24 @@ class MainActivity : ComponentActivity() {
                 val sessions = remember { GameCategory.entries.associateWith { store.load(it) } }
                 sessions.forEach { (category,session) ->
                     LaunchedEffect(session) {
-                        snapshotFlow { listOf(session.index,session.correctCount,session.mistakeCount,session.questions.toMap()) }.collect { store.save(category,session) }
+                        snapshotFlow { store.snapshot(session) }.collect { snapshot ->
+                            withContext(Dispatchers.IO) { store.save(category, snapshot) }
+                        }
                     }
                 }
                 LaunchedEffect(reminderCategory) { reminderCategory?.let { if(com.algokids.data.LearningPath.unlocked(preferences,it,language.name)) selectedCategory=it;classic=false;challengeId=null;parentSettings=false;appearanceVisible=false;dailyVisible=false;selectedStoryId=null;storiesVisible=false;reminderCategory=null } }
                 val challenge=ChallengeCatalog.all.find { it.id==challengeId }?.let { ChallengeLocalization.localize(it,language==AppLanguage.EN) }
                 when {
-                    appearanceVisible -> AppearanceScreen(language,workshopAds,{sharedTts.stop()},{appearanceVisible=false})
-                    parentSettings -> ParentSettingsScreen(language,sharedTts,isTtsReady,{parentSettings=false},workshopAds.privacyRequired(),{workshopAds.privacyOptions()}, {com.algokids.ads.ParentBanner(workshopAds,language)}, {parentSettings=false;appearanceVisible=true})
+                    appearanceVisible -> AppearanceScreen(language,workshopAds,{sharedTts.stop()},{
+                        appearanceVisible=false
+                        if(appearanceReturnToParent) parentSettings=true
+                        appearanceReturnToParent=false
+                    })
+                    parentSettings -> ParentSettingsScreen(language,sharedTts,isTtsReady,{parentSettings=false},workshopAds.privacyRequired(),{workshopAds.privacyOptions()}, {com.algokids.ads.ParentBanner(workshopAds,language)}, {
+                        appearanceReturnToParent=true
+                        parentSettings=false
+                        appearanceVisible=true
+                    })
                     dailyVisible -> DailyMissionScreen(language,{dailyVisible=false})
                     selectedStory != null -> StoryScreen(selectedStory!!,language,isSoundEnabled,sharedTts,isTtsReady,{isSoundEnabled=!isSoundEnabled},{selectedStoryId=null})
                     challenge != null -> key(challenge.id) { ChallengeScreen(challenge,language,sharedTts,isTtsReady,isSoundEnabled,{isSoundEnabled=!isSoundEnabled},{challengeId=null},
@@ -86,14 +117,20 @@ class MainActivity : ComponentActivity() {
                             GameCategory.ALGORITHM -> AlgorithmGameScreen(language,isSoundEnabled,sharedTts,isTtsReady,{isSoundEnabled=!isSoundEnabled},{classic=false})
                             GameCategory.ALPHABET,GameCategory.NUMBERS -> LearningScreen(category,language,isSoundEnabled,sharedTts,isTtsReady,{classic=false})
                             else -> {
-                                val list=remember(category) { repo.getContentByCategory(category) }
-                                GameScreen(list,sessions.getValue(category),language,isSoundEnabled,sharedTts,isTtsReady,{isSoundEnabled=!isSoundEnabled},{classic=false})
+                                val list by produceState<List<GameContent>?>(null, category, repo) {
+                                    value = withContext(Dispatchers.IO) { repo.getContentByCategory(category) }
+                                }
+                                if (list == null) Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                } else {
+                                    GameScreen(list.orEmpty(),sessions.getValue(category),language,isSoundEnabled,sharedTts,isTtsReady,{isSoundEnabled=!isSoundEnabled},{classic=false})
+                                }
                             }
                         }
                     }
                     else -> HomeScreen(
                         bannerContent={com.algokids.ads.ParentBanner(workshopAds,language,"home_banner")},
-                        onAppearance={appearanceVisible=true},
+                        onAppearance={appearanceReturnToParent=false;appearanceVisible=true},
                         progressRevision=progressRevision,onResetProgress={
                             sharedTts.stop(); sessions.values.forEach { it.restart() };store.resetLearning();progressRevision++
                         },

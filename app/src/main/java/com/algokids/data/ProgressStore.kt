@@ -6,15 +6,21 @@ import com.algokids.ui.screens.GameSessionState
 import com.algokids.ui.screens.QuestionProgress
 import com.google.gson.Gson
 
+data class SavedGameSession(
+    val index: Int = 0,
+    val correct: Int = 0,
+    val mistakes: Int = 0,
+    val questions: Map<String, QuestionProgress> = emptyMap()
+)
+
 /** Only plain values are serialized; Compose delegates never enter the saved data. */
 class ProgressStore(context: Context) {
     private val preferences = context.getSharedPreferences("algokids_progress", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private data class SavedSession(val index: Int = 0, val correct: Int = 0, val mistakes: Int = 0, val questions: Map<String, QuestionProgress> = emptyMap())
 
     fun load(category: GameCategory): GameSessionState {
         val state = GameSessionState()
-        val saved = runCatching { gson.fromJson(preferences.getString("session_v${Curriculum.REVISION}_${category.name}", null), SavedSession::class.java) }.getOrNull()
+        val saved = runCatching { gson.fromJson(preferences.getString("session_v${Curriculum.REVISION}_${category.name}", null), SavedGameSession::class.java) }.getOrNull()
         if(saved != null) {
             state.index = saved.index.coerceAtLeast(0)
             state.correctCount = saved.correct.coerceAtLeast(0)
@@ -24,8 +30,13 @@ class ProgressStore(context: Context) {
         return state
     }
 
-    fun save(category: GameCategory, state: GameSessionState) {
-        preferences.edit().putString("session_v${Curriculum.REVISION}_${category.name}", gson.toJson(SavedSession(state.index,state.correctCount,state.mistakeCount,state.questions.toMap()))).apply()
+    fun snapshot(state: GameSessionState) = SavedGameSession(state.index, state.correctCount, state.mistakeCount, state.questions.toMap())
+
+    fun save(category: GameCategory, state: GameSessionState) = save(category, snapshot(state))
+
+    /** Serialize and persist an immutable snapshot; callers can run this on Dispatchers.IO. */
+    fun save(category: GameCategory, state: SavedGameSession) {
+        preferences.edit().putString("session_v${Curriculum.REVISION}_${category.name}", gson.toJson(state)).apply()
     }
 
     fun foundationCompleted(category:GameCategory, language:String="TR"):Boolean {
